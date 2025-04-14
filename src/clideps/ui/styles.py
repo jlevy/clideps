@@ -9,7 +9,7 @@ def safe_emoji(emoji: str, fallback: str = "") -> str:
     return emoji if not is_legacy_windows else fallback
 
 
-EMOJI_INFO = safe_emoji("ℹ︎", "[i]")
+EMOJI_INFO = safe_emoji("⊘", "[i]")
 EMOJI_WARN = safe_emoji("∆", "[!]")
 EMOJI_ERROR = safe_emoji("‼︎", "[!!]")
 EMOJI_SUCCESS = safe_emoji("✔︎", "(+)")

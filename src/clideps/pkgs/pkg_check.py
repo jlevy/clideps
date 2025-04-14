@@ -6,6 +6,7 @@ from pathlib import Path
 
 from prettyfmt import fmt_path
 
+from clideps.pkgs.checker_registry import run_checker
 from clideps.pkgs.pkg_info import get_pkg_info, load_pkg_info
 from clideps.pkgs.pkg_model import (
     CheckInfo,
@@ -32,19 +33,6 @@ def which_tool(pkg: PkgInfo) -> tuple[Path | None, CheckInfo]:
         if path
         else f"Did not find in path: {', '.join(pkg.command_names)}",
     )
-
-
-def check_pkg(pkg_name: PkgName) -> tuple[bool, CheckInfo]:
-    """
-    Does the tool pass the checker?
-    """
-    from clideps.pkgs.checker_registry import run_checker
-
-    success = run_checker(pkg_name)
-    if success:
-        return True, f"Checker for `{pkg_name}` passed"
-    else:
-        return False, f"Checker for `{pkg_name}` failed"
 
 
 def pkg_check(
@@ -89,8 +77,7 @@ def pkg_check(
             success, check_info = True, which_info
         else:
             # Otherwise use a checker function.
-            success, check_info = check_pkg(dep.pkg_name)
-
+            success, check_info = run_checker(dep.pkg_name)
         if success:
             found_info[dep.pkg_name] = check_info
             found_pkgs.append(dep.pkg)
@@ -102,6 +89,11 @@ def pkg_check(
                 missing_recommended.append(dep.pkg)
             else:
                 missing_optional.append(dep.pkg)
+
+    found_pkgs.sort()
+    missing_required.sort()
+    missing_recommended.sort()
+    missing_optional.sort()
 
     return PkgCheckResult(
         found_pkgs,

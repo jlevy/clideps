@@ -191,7 +191,7 @@ class PkgInfo(BaseModel):
         return Group(*texts)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Pkg:
     """
     A package is a our name plus associated info.

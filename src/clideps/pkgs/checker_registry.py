@@ -5,7 +5,7 @@ from collections.abc import Callable
 from typing import TypeAlias
 
 from clideps.errors import ConfigError
-from clideps.pkgs.pkg_model import PkgName
+from clideps.pkgs.pkg_model import CheckInfo, PkgName
 from clideps.utils.atomic_var import AtomicVar
 
 log = logging.getLogger(__name__)
@@ -13,8 +13,9 @@ log = logging.getLogger(__name__)
 
 Checker: TypeAlias = Callable[[], None | bool]
 """
-A checker should raise an exception or return False on failure. Returning
-True or None indicates that the package is available.
+A checker should raise an exception (with a descriptive message)
+or return False on failure. Returning True or None indicates that
+the package is available.
 """
 
 _checker_registry: AtomicVar[dict[str, Checker]] = AtomicVar({})
@@ -40,15 +41,19 @@ def get_checker(name: PkgName) -> Checker | None:
     return _checker_registry.copy().get(name)
 
 
-def run_checker(name: PkgName) -> bool:
+def run_checker(name: PkgName) -> tuple[bool, CheckInfo]:
     """
     Run the checker function for a package.
     """
     checker = get_checker(name)
     if checker:
         try:
-            return bool(checker())
+            checker_result = checker()
+            if checker_result is False:
+                return False, f"Package `{name}` not found (checker failed)"
+            else:
+                return True, f"Package `{name}` found (checker passed)"
         except Exception as e:
             log.info("Package %r is not installed or not accessible (checker failed): %s", name, e)
-            return False
-    return False
+            return False, f"Package `{name}` not found (checker failed): {e}"
+    return False, f"Package `{name}` not found (no checker found)"

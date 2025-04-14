@@ -10,9 +10,9 @@ import sys
 from importlib.metadata import version
 
 from clideps.cli.cli_commands import cli_env_check, cli_pkg_check, cli_pkg_info, cli_terminal_info
-from clideps.errors import ClidepsError
 from clideps.ui.argparse_utils import WrappedColorFormatter
-from clideps.ui.rich_output import print_error
+from clideps.ui.rich_output import print_error, rprint
+from clideps.ui.styles import STYLE_HINT
 
 APP_NAME = "clideps"
 
@@ -95,7 +95,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show information about all the packages and the terminal.",
         description="""
         Show information about all the packages and the terminal.
-        Same as running `clideps terminal_info`, `clideps pkg_check`.
+        Same as running `clideps terminal_info`, `clideps env_check`, and `clideps pkg_check`.
         """,
         formatter_class=WrappedColorFormatter,
     )
@@ -118,13 +118,13 @@ def main() -> None:
             cli_terminal_info()
         elif args.command == "check_all":
             cli_terminal_info()
+            cli_env_check([])
             cli_pkg_check([])
 
-    except ClidepsError:
-        # We will have already printed an error message.
-        exit(1)
     except Exception as e:
         print_error(str(e))
+        rprint("Use --verbose to see the full traceback.", style=STYLE_HINT)
+        rprint()
         if args.verbose:
             raise
         sys.exit(1)
