@@ -42,8 +42,11 @@ dependencies = [
     "dotenv>=0.9.9",
     "flowmark>=0.3.3",
     "prettyfmt>=0.3.0",
+    "pydantic>=2.11.3",
+    "pyyaml>=6.0.2",
     "questionary>=2.1.0",
     "rich>=14.0.0",
+    "rich-argparse>=1.7.0",
     "strif>=2.1.0",
 ]
 
@@ -62,7 +65,7 @@ dev = [
 
 [project.scripts]
 # Add script entry points here.
-clideps = "clideps:main"
+clideps = "clideps.cli.cli_main:main"
 
 
 # ---- Build system ----
@@ -149,9 +152,10 @@ reportUnusedCallResult = false
 reportAny = false
 reportExplicitAny = false
 reportImplicitStringConcatenation = false
+reportUnreachable = false
+reportPrivateImportUsage = false
 # reportMissingImports = false
 # reportUnnecessaryIsInstance = false
-# reportUnreachable = false
 # reportUnknownVariableType = false
 # reportUnknownArgumentType = false
 

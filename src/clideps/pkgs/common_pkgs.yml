@@ -1,0 +1,165 @@
+# Some common external tool dependencies.
+# Short for now and just holds non-pip external tools often depended on
+# by Python. But could expand this.
+
+less:
+  command_names: [less]
+  comment: |-
+    Almost always pre-installed but listing so dependency can be declared.
+  pkg_managers:
+    brew: null
+    apt: null
+    pixi: null
+    pip: null
+    winget: null
+    chocolatey: null
+
+tail:
+  command_names: [tail]
+  comment: null
+  pkg_managers:
+    brew: null
+    apt: null
+    pixi: null
+    pip: null
+    winget: null
+    chocolatey: null
+
+bat:
+  command_names: [batcat, bat]
+  comment: |-
+    Not available on ubuntu, but in pixi.
+  pkg_managers:
+    brew: bat
+    apt: null
+    pixi: bat
+    pip: null
+    winget: sharkdp.bat
+    chocolatey: null
+
+ripgrep:
+  command_names: [rg]
+  comment: null
+  pkg_managers:
+    brew: ripgrep
+    apt: ripgrep
+    pixi: null
+    pip: null
+    winget: BurntSushi.ripgrep
+    chocolatey: null
+
+eza:
+  command_names: [eza]
+  comment: null
+  pkg_managers:
+    brew: eza
+    apt: eza
+    pixi: null
+    pip: null
+    winget: eza-community.eza
+    chocolatey: null
+
+zoxide:
+  command_names: [zoxide]
+  comment: null
+  pkg_managers:
+    brew: zoxide
+    apt: zoxide
+    pixi: null
+    pip: null
+    winget: ajeetdsouza.zoxide
+    chocolatey: null
+
+hexyl:
+  command_names: [hexyl]
+  comment: null
+  pkg_managers:
+    brew: hexyl
+    apt: hexyl
+    pixi: null
+    pip: null
+    winget: sharkdp.hexyl
+    chocolatey: null
+
+pygmentize:
+  command_names: [pygmentize]
+  comment: null
+  pkg_managers:
+    brew: pygments
+    apt: python3-pygments
+    pixi: null
+    pip: Pygments
+    winget: null
+    chocolatey: null
+
+libmagic:
+  command_names: []
+  comment: |-
+    For macOS and Linux, brew or apt gives the latest binaries. For Windows, it may be
+    easier to use pip.
+  pkg_managers:
+    brew: libmagic
+    apt: libmagic1
+    pixi: null
+    pip: python-magic-bin
+    winget: null
+    chocolatey: null
+
+libgl1:
+  command_names: []
+  comment: |-
+    Needed on ubuntu along with ffmpeg
+  pkg_managers:
+    brew: null
+    apt: libgl1
+    pixi: null
+    pip: null
+    winget: null
+    chocolatey: null
+  
+ffmpeg:
+  command_names: [ffmpeg]
+  comment: |-
+    Needed by yt-dlp and many other tools.
+  pkg_managers:
+    brew: ffmpeg
+    apt: ffmpeg
+    pixi: null
+    pip: null
+    winget: Gyan.FFmpeg
+    chocolatey: null
+
+imagemagick:
+  command_names: [magick]
+  comment: null
+  pkg_managers:
+    brew: imagemagick
+    apt: imagemagick
+    pixi: null
+    pip: null
+    winget: ImageMagick.ImageMagick
+    chocolatey: null
+
+dust:
+  command_names: [dust]
+  comment: |-
+    Not available on ubuntu, but in pixi.
+  pkg_managers:
+    brew: dust
+    apt: null
+    pixi: dust
+    pip: null
+    winget: bootandy.dust
+    chocolatey: null
+
+duf:
+  command_names: [duf]
+  comment: |-
+    Not in winget. Only in unstable on ubuntu, but in pixi.
+  pkg_managers:
+    brew: duf
+    apt: null
+    pixi: duf
+    pip: null
+    winget: null
+    chocolatey: duf

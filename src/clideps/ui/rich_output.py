@@ -1,15 +1,16 @@
+from typing import Literal, TypeAlias
+
 from flowmark import fill_text
 from rich import get_console
 from rich.text import Text
 
 from clideps.ui.styles import (
-    COLOR_FAILURE,
-    COLOR_SUCCESS,
     EMOJI_ERROR,
     EMOJI_FAILURE,
     EMOJI_SUCCESS,
     EMOJI_WARN,
     STYLE_ERROR,
+    STYLE_FAILURE,
     STYLE_HEADING,
     STYLE_HINT,
     STYLE_KEY,
@@ -59,20 +60,43 @@ def print_failed(e: Exception) -> None:
     print_error(f"Failed to create project: {e}")
 
 
-def success_emoji(value: bool, success_only: bool = False) -> str:
-    return EMOJI_SUCCESS if value else " " if success_only else EMOJI_FAILURE
+Status: TypeAlias = bool | Literal["warning", "error"]
 
 
-def format_success_emoji(value: bool, success_only: bool = False) -> Text:
-    return Text(success_emoji(value, success_only), style=COLOR_SUCCESS if value else COLOR_FAILURE)
+def status_emoji(value: Status, success_only: bool = False) -> str:
+    if value is True:
+        return EMOJI_SUCCESS
+    elif value is False:
+        return " " if success_only else EMOJI_FAILURE
+    elif value == "warning":
+        return EMOJI_WARN
+    elif value == "error":
+        return EMOJI_ERROR
+    else:
+        raise ValueError(f"Invalid status: {value}")
+
+
+def format_status_emoji(status: Status, success_only: bool = False) -> Text:
+    if status is True:
+        style = STYLE_SUCCESS
+    elif status is False:
+        style = STYLE_FAILURE
+    elif status == "warning":
+        style = STYLE_WARNING
+    elif status == "error":
+        style = STYLE_ERROR
+    else:
+        raise ValueError(f"Invalid status: {status}")
+
+    return Text(status_emoji(status, success_only), style=style)
 
 
 def format_success(message: str | Text) -> Text:
-    return Text.assemble(format_success_emoji(True), message)
+    return Text.assemble(format_status_emoji(True), message)
 
 
 def format_failure(message: str | Text) -> Text:
-    return Text.assemble(format_success_emoji(False), message)
+    return Text.assemble(format_status_emoji(False), message)
 
 
 def format_success_or_failure(
@@ -82,7 +106,7 @@ def format_success_or_failure(
     Format a success or failure message with an emoji followed by the true or false
     string. If false_str is not provided, it will be the same as true_str.
     """
-    emoji = format_success_emoji(value)
+    emoji = format_status_emoji(value)
     if true_str or false_str:
         return Text.assemble(emoji, space, true_str if value else (false_str or true_str))
     else:
@@ -93,15 +117,19 @@ def format_name_and_value(
     name: str | Text,
     doc: str,
     extra_note: str | None = None,
+    extra_indent: str = "",
 ) -> Text:
     """
     Format a key value followed by a note and a description.
     """
     if isinstance(name, str):
         name = Text(name, style=STYLE_KEY)
-    doc = fill_text(doc, initial_column=len(name) + 2)
+    doc = fill_text(
+        doc, initial_column=len(name) + 2 + len(extra_indent), extra_indent=extra_indent
+    )
 
     return Text.assemble(
+        extra_indent,
         name,
         ((" " + extra_note, STYLE_HINT) if extra_note else ""),
         (": ", STYLE_HINT),

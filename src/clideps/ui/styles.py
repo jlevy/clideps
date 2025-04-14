@@ -16,15 +16,13 @@ EMOJI_FAILURE = safe_emoji("✘", "(x)")
 EMOJI_CMD = safe_emoji("➤", ">")
 
 
-COLOR_SUCCESS = "green"
-COLOR_FAILURE = "bright_red"
-
-
 STYLE_HEADING = "bold bright_green"
 STYLE_HINT = "italic bright_black"
 STYLE_EMPH = "bright_green"
 STYLE_KEY = "bold bright_blue"
 STYLE_CODE = "bold bright_cyan"
+
 STYLE_ERROR = "bold red"
 STYLE_WARNING = "bold yellow"
 STYLE_SUCCESS = "bold green"
+STYLE_FAILURE = "bold red"

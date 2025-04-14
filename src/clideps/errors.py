@@ -29,3 +29,15 @@ class PkgMissing(ClidepsError):
     """
     Exception raised when a required external package is missing.
     """
+
+
+class ConfigError(ClidepsError):
+    """
+    Error raised when settings or configs of clideps itself are invalid.
+    """
+
+
+class UnknownPkgName(ValueError, ClidepsError):
+    """
+    Raised when a package name is not found in the package info.
+    """
