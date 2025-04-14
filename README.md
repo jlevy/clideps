@@ -1,20 +1,41 @@
 # clideps
 
-👉\[\[\[**This is the initial readme for your
-[simple-modern-uv](https://github.com/jlevy/simple-modern-uv) template.** Fill it in and
-delete this message!
-Below are general setup instructions that you may remove or keep and adapt for your
-project.\]\]\]
+(New and currently in progress!)
 
-* * *
+clideps is a cross-platform tool and library that helps with the headache of checking
+your system setup and if you have various dependencies set up right:
 
-## Project Docs
+- Environment variables, .env files, and API keys
 
-For how to install uv and Python, see [installation.md](installation.md).
+- System tools and packages: Check for external tools (like ffmpeg or ripgrep) and
+  environment variables (such as API keys) available.
 
-For development workflows, see [development.md](development.md).
+- Python external library dependencies
 
-For instructions on publishing to PyPI, see [publishing.md](publishing.md).
+And then it interactively helps you fix it!
+
+- It can help you find and safely edit .env files with API keys
+
+- It can check if you have packages installed
+
+- If you don't, it can tell you how to install them using whatever package manager you
+  use
+
+- If you don't have a package manager installed, it will help you install it too!
+
+Supports several major package managers on macOS, Windows, and Linux.
+
+## Usage
+
+It is available as a pip as `clideps` so use as usual.
+For uv users (recommended):
+
+```
+# Run the cli
+uvx clideps
+# Add to your project and you will be able to streamline setup for your users:
+uv add clideps
+```
 
 * * *
 

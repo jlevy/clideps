@@ -1,13 +1,12 @@
+from clideps.env.env_check import print_env_check
 from clideps.errors import UnknownPkgName
 from clideps.pkgs.pkg_check import pkg_check
 from clideps.pkgs.pkg_info import get_pkg_info, load_pkg_info
+from clideps.terminal.terminal_features import terminal_check
 from clideps.ui.rich_output import print_error, rprint
 
 
 def cli_pkg_info(pkg_names: list[str]) -> None:
-    """
-    Display information about the requested packages.
-    """
     all_pkg_info = load_pkg_info()
     names_to_show = sorted(pkg_names or list(all_pkg_info.keys()))
 
@@ -29,10 +28,22 @@ def cli_pkg_info(pkg_names: list[str]) -> None:
 
 
 def cli_pkg_check(pkg_names: list[str]) -> None:
-    """
-    Check if the requested packages are installed.
-    """
-    result = pkg_check(pkg_names)
+    if pkg_names:
+        result = pkg_check(pkg_names)
+    else:
+        result = pkg_check()
     rprint()
     rprint(result.formatted())
+    rprint()
+
+
+def cli_env_check(env_vars: list[str]) -> None:
+    rprint()
+    print_env_check(env_vars)
+    rprint()
+
+
+def cli_terminal_info() -> None:
+    rprint()
+    rprint(terminal_check().formatted())
     rprint()

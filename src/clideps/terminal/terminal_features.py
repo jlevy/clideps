@@ -17,7 +17,11 @@ class TerminalInfo:
     supports_sixel: bool
     supports_osc8: bool
 
-    def as_text(self) -> Text:
+    @property
+    def name_str(self) -> str:
+        return f"{self.term} ({self.term_program})"
+
+    def formatted_details(self) -> Text:
         return Text.assemble(
             f"{self.terminal_width} cols, ",
             format_success_or_failure(
@@ -33,13 +37,11 @@ class TerminalInfo:
             ),
         )
 
-    @property
-    def name_str(self) -> str:
-        return f"{self.term} ({self.term_program})"
-
-    @property
-    def info_str(self) -> str:
-        return f"Terminal is {self.name_str}, {self.as_text()}"
+    def formatted(self) -> Text:
+        return Text.assemble(
+            f"Terminal is {self.name_str}, ",
+            self.formatted_details(),
+        )
 
 
 def terminal_check() -> TerminalInfo:

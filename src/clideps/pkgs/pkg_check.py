@@ -6,7 +6,7 @@ from pathlib import Path
 
 from prettyfmt import fmt_path
 
-from clideps.pkgs.pkg_info import get_pkg_info
+from clideps.pkgs.pkg_info import get_pkg_info, load_pkg_info
 from clideps.pkgs.pkg_model import (
     CheckInfo,
     DepType,
@@ -57,9 +57,11 @@ def pkg_check(
     package names. The usual list is mandatory dependencies, but recommended
     and optional dependencies can also be listed.
 
-    If no dependencies are listed, all known dependencies will be used
-    checked as optional dependencies.
+    If no dependencies are listed, all known dependencies will be checked as
+    optional dependencies.
     """
+    if not mandatory and not recommended and not optional:
+        optional = list(load_pkg_info().keys())
 
     found_pkgs: list[Pkg] = []
     missing_required: list[Pkg] = []

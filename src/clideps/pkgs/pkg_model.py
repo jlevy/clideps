@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from rich.console import Group
 from rich.text import Text
 
-from clideps.ui.rich_output import format_name_and_value, format_success_or_failure
+from clideps.ui.rich_output import format_name_and_value, format_status
 from clideps.ui.styles import STYLE_HEADING, STYLE_HINT
 
 PkgName: TypeAlias = str
@@ -256,19 +256,20 @@ class PkgCheckResult:
         texts: list[Text | Group] = []
         for pkg in self.found_pkgs:
             found_str = self.found_info.get(pkg.name, "Found")
-            doc = format_success_or_failure(
-                True,
-                true_str=format_name_and_value(pkg.name, found_str),
-                false_str=format_name_and_value(pkg.name, "Not found!"),
-            )
+            doc = format_status(True, found_str)
+            texts.append(doc)
+        for pkg in self.missing_required:
+            missing_str = self.missing_info.get(pkg.name, "Required package not found!")
+            doc = format_status("error", missing_str)
+            texts.append(doc)
+        for pkg in self.missing_recommended:
+            missing_str = self.missing_info.get(pkg.name, "Recommended package not found")
+            doc = format_status("warning", missing_str)
             texts.append(doc)
 
-        for pkg in self.missing_required:
-            missing_str = self.missing_info.get(pkg.name, "Not found!")
-            doc = format_success_or_failure(
-                False,
-                true_str=format_name_and_value(pkg.name, missing_str),
-                false_str=format_name_and_value(pkg.name, "Not found!"),
-            )
+        for pkg in self.missing_optional:
+            missing_str = self.missing_info.get(pkg.name, "Optional package not found")
+            doc = format_status("info", missing_str)
+            texts.append(doc)
 
         return Group(*texts)

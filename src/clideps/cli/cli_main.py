@@ -1,11 +1,6 @@
 """
-clideps is a cross-platform tool and library that helps you check if you
-have messy dependencies set up right.
-
-Check for external tools (like ffmpeg or ripgrep) and environment variables
-(such as API keys) available.
-
-And then it can help you install what you need!
+clideps is a cross-platform tool and library that helps with the headache
+of checking your system setup and if you have various dependencies set up right.
 
 More info: https://github.com/jlevy/clideps
 """
@@ -14,7 +9,7 @@ import argparse
 import sys
 from importlib.metadata import version
 
-from clideps.cli.cli_commands import cli_pkg_check, cli_pkg_info
+from clideps.cli.cli_commands import cli_env_check, cli_pkg_check, cli_pkg_info, cli_terminal_info
 from clideps.errors import ClidepsError
 from clideps.ui.argparse_utils import WrappedColorFormatter
 from clideps.ui.rich_output import print_error
@@ -53,17 +48,58 @@ def build_parser() -> argparse.ArgumentParser:
         """,
         formatter_class=WrappedColorFormatter,
     )
-    pkg_check_parser.add_argument("pkg_names", type=str, nargs="+", help="package names to check")
+    pkg_check_parser.add_argument("pkg_names", type=str, nargs="*", help="package names to check")
 
     pkg_info_parser = subparsers.add_parser(
         "pkg_info",
-        help="Show information about a package.",
-        description="Description 2.",
+        help="Show general info about given packages.",
+        description="""
+        Show general info about given packages. Does not check if they are installed.
+        """,
         formatter_class=WrappedColorFormatter,
     )
     pkg_info_parser.add_argument(
         "pkg_names", type=str, nargs="*", help="package names to show info for, or all if not given"
     )
+
+    env_check_parser = subparsers.add_parser(
+        "env_check",
+        help="Show information about .env files and environment variables.",
+        description="""
+        Show information about .env files and environment variables.
+        """,
+        formatter_class=WrappedColorFormatter,
+    )
+    env_check_parser.add_argument(
+        "env_vars",
+        type=str,
+        nargs="*",
+        help="""
+        environment variables to show info for (if none, use some common API keys
+        like OPENAI_API_KEY, AZURE_API_KEY, etc.)
+        """,
+    )
+
+    subparsers.add_parser(
+        "terminal_info",
+        help="Show information about the terminal.",
+        description="""
+        Show information about the terminal. Includes regular terminfo details and
+        whether the terminal supports other features like hyperlinks or images.
+        """,
+        formatter_class=WrappedColorFormatter,
+    )
+
+    subparsers.add_parser(
+        "check_all",
+        help="Show information about all the packages and the terminal.",
+        description="""
+        Show information about all the packages and the terminal.
+        Same as running `clideps terminal_info`, `clideps pkg_check`.
+        """,
+        formatter_class=WrappedColorFormatter,
+    )
+
     return parser
 
 
@@ -76,6 +112,14 @@ def main() -> None:
             cli_pkg_check(args.pkg_names)
         elif args.command == "pkg_info":
             cli_pkg_info(args.pkg_names)
+        elif args.command == "env_check":
+            cli_env_check(args.env_vars)
+        elif args.command == "terminal_info":
+            cli_terminal_info()
+        elif args.command == "check_all":
+            cli_terminal_info()
+            cli_pkg_check([])
+
     except ClidepsError:
         # We will have already printed an error message.
         exit(1)

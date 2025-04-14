@@ -7,12 +7,14 @@ from rich.text import Text
 from clideps.ui.styles import (
     EMOJI_ERROR,
     EMOJI_FAILURE,
+    EMOJI_INFO,
     EMOJI_SUCCESS,
     EMOJI_WARN,
     STYLE_ERROR,
     STYLE_FAILURE,
     STYLE_HEADING,
     STYLE_HINT,
+    STYLE_INFO,
     STYLE_KEY,
     STYLE_SUCCESS,
     STYLE_WARNING,
@@ -60,7 +62,7 @@ def print_failed(e: Exception) -> None:
     print_error(f"Failed to create project: {e}")
 
 
-Status: TypeAlias = bool | Literal["warning", "error"]
+Status: TypeAlias = bool | Literal["info", "warning", "error"]
 
 
 def status_emoji(value: Status, success_only: bool = False) -> str:
@@ -68,6 +70,8 @@ def status_emoji(value: Status, success_only: bool = False) -> str:
         return EMOJI_SUCCESS
     elif value is False:
         return " " if success_only else EMOJI_FAILURE
+    elif value == "info":
+        return EMOJI_INFO
     elif value == "warning":
         return EMOJI_WARN
     elif value == "error":
@@ -81,6 +85,8 @@ def format_status_emoji(status: Status, success_only: bool = False) -> Text:
         style = STYLE_SUCCESS
     elif status is False:
         style = STYLE_FAILURE
+    elif status == "info":
+        style = STYLE_INFO
     elif status == "warning":
         style = STYLE_WARNING
     elif status == "error":
@@ -97,6 +103,10 @@ def format_success(message: str | Text) -> Text:
 
 def format_failure(message: str | Text) -> Text:
     return Text.assemble(format_status_emoji(False), message)
+
+
+def format_status(status: Status, message: str | Text, space: str = "") -> Text:
+    return Text.assemble(format_status_emoji(status), space, message)
 
 
 def format_success_or_failure(
