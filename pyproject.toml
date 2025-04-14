@@ -38,6 +38,13 @@ classifiers = [
 # ---- Main dependencies ----
 
 dependencies = [
+    "cachetools>=5.5.2",
+    "dotenv>=0.9.9",
+    "flowmark>=0.3.3",
+    "prettyfmt>=0.3.0",
+    "questionary>=2.1.0",
+    "rich>=14.0.0",
+    "strif>=2.1.0",
 ]
 
 
@@ -106,6 +113,7 @@ select = [
 
 ]
 ignore = [
+    "UP031",
     "E501", # https://docs.astral.sh/ruff/rules/line-too-long/
     "E402", # https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/
     "E731", # https://docs.astral.sh/ruff/rules/lambda-assignment/
@@ -138,16 +146,17 @@ reportUnnecessaryTypeIgnoreComment = false
 # A few typically noisy warnings, comment/uncomment as desired:
 reportMissingTypeStubs = false
 reportUnusedCallResult = false
+reportAny = false
+reportExplicitAny = false
+reportImplicitStringConcatenation = false
 # reportMissingImports = false
 # reportUnnecessaryIsInstance = false
 # reportUnreachable = false
-# reportAny = false
-# reportExplicitAny = false
 # reportUnknownVariableType = false
 # reportUnknownArgumentType = false
 
 [tool.codespell]
-# ignore-words-list = "foo,bar"
+ignore-words-list = "iTerm"
 # skip = "foo.py,bar.py"
 
 [tool.pytest.ini_options]
