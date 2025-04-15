@@ -9,7 +9,13 @@ import argparse
 import sys
 from importlib.metadata import version
 
-from clideps.cli.cli_commands import cli_env_check, cli_pkg_check, cli_pkg_info, cli_terminal_info
+from clideps.cli.cli_commands import (
+    cli_env_check,
+    cli_pkg_check,
+    cli_pkg_info,
+    cli_pkg_manager_check,
+    cli_terminal_info,
+)
 from clideps.ui.argparse_utils import WrappedColorFormatter
 from clideps.ui.rich_output import print_error, rprint
 from clideps.ui.styles import STYLE_HINT
@@ -62,6 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
         "pkg_names", type=str, nargs="*", help="package names to show info for, or all if not given"
     )
 
+    subparsers.add_parser(
+        "pkg_manager_check",
+        help="Check which package managers are installed.",
+        description="Check which package managers (brew, apt, scoop, etc.) are installed and available.",
+        formatter_class=WrappedColorFormatter,
+    )
+
     env_check_parser = subparsers.add_parser(
         "env_check",
         help="Show information about .env files and environment variables.",
@@ -112,18 +125,21 @@ def main() -> None:
             cli_pkg_check(args.pkg_names)
         elif args.command == "pkg_info":
             cli_pkg_info(args.pkg_names)
+        elif args.command == "pkg_manager_check":
+            cli_pkg_manager_check()
         elif args.command == "env_check":
             cli_env_check(args.env_vars)
         elif args.command == "terminal_info":
             cli_terminal_info()
         elif args.command == "check_all":
             cli_terminal_info()
+            cli_pkg_manager_check()
             cli_env_check([])
             cli_pkg_check([])
 
     except Exception as e:
         print_error(str(e))
-        rprint("Use --verbose to see the full traceback.", style=STYLE_HINT)
+        rprint("Use --verbose or --debug to see the full traceback.", style=STYLE_HINT)
         rprint()
         if args.verbose:
             raise

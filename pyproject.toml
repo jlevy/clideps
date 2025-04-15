@@ -154,6 +154,7 @@ reportExplicitAny = false
 reportImplicitStringConcatenation = false
 reportUnreachable = false
 reportPrivateImportUsage = false
+reportPrivateLocalImportUsage = false
 # reportMissingImports = false
 # reportUnnecessaryIsInstance = false
 # reportUnknownVariableType = false

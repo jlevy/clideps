@@ -22,6 +22,9 @@ More info about a found package (like the command that was found) or a missing
 package (like the exception message from the checker).
 """
 
+PkgTag: TypeAlias = str
+"""Tags for a package."""
+
 Url: TypeAlias = str
 """Use for URLs for better type clarity."""
 
@@ -48,6 +51,7 @@ class PkgManager:
     platforms: tuple[Platform, ...]
     command_names: tuple[str, ...]
     install_command_template: CommandTemplate
+    check_command: str
 
     def get_install_command(self, *pkg_names: str) -> str:
         return self.install_command_template(list(pkg_names))
@@ -61,6 +65,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Darwin,),
         command_names=("brew",),
         install_command_template=lambda args: f"brew install {' '.join(args)}",
+        check_command="brew --version",
     )
     apt = PkgManager(
         name="apt",
@@ -69,6 +74,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Linux,),
         command_names=("apt-get",),
         install_command_template=lambda args: f"apt-get install {' '.join(args)}",
+        check_command="apt-get --version",
     )
     pixi = PkgManager(
         name="pixi",
@@ -77,6 +83,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Darwin, Platform.Linux, Platform.Windows),
         command_names=("pixi",),
         install_command_template=lambda args: f"pixi global install {' '.join(args)}",
+        check_command="pixi --version",
     )
     pip = PkgManager(
         name="pip",
@@ -85,6 +92,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Darwin, Platform.Linux, Platform.Windows),
         command_names=("pip",),
         install_command_template=lambda args: f"pip install {' '.join(args)}",
+        check_command="pip --version",
     )
     winget = PkgManager(
         name="winget",
@@ -93,6 +101,16 @@ class PkgManagers(Enum):
         platforms=(Platform.Windows,),
         command_names=("winget",),
         install_command_template=lambda args: f"winget install {' '.join(args)}",
+        check_command="winget --version",
+    )
+    scoop = PkgManager(
+        name="scoop",
+        url="https://github.com/ScoopInstaller/Scoop",
+        install_url="https://scoop.sh/",
+        platforms=(Platform.Windows,),
+        command_names=("scoop",),
+        install_command_template=lambda args: f"scoop install {' '.join(args)}",
+        check_command="scoop --version",
     )
     chocolatey = PkgManager(
         name="chocolatey",
@@ -101,6 +119,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Windows,),
         command_names=("choco",),
         install_command_template=lambda args: f"choco install {' '.join(args)}",
+        check_command="choco --version",
     )
 
 
@@ -156,6 +175,9 @@ class PkgInfo(BaseModel):
 
     pkg_managers: PkgManagerNames = PkgManagerNames()
     """Package manager install names."""
+
+    tags: tuple[str, ...] = ()
+    """Tags for the package."""
 
     comment: str | None = None
     """Notes about the package or its availability on each platform."""
