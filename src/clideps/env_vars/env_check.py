@@ -7,8 +7,8 @@ from rich import print as rprint
 from rich.console import Group
 from rich.text import Text
 
-from clideps.env_vars.common_env_vars import CommonEnvVar, get_all_common_env_vars
 from clideps.env_vars.dotenv_utils import env_var_is_set, load_dotenv_paths
+from clideps.env_vars.env_names import EnvName, get_all_common_env_names
 from clideps.ui.rich_output import format_success_or_failure
 
 log = getLogger(__name__)
@@ -17,15 +17,15 @@ log = getLogger(__name__)
 _log_api_setup_done = threading.Event()
 
 
-def check_env_vars(env_vars: list[str] | None = None) -> list[tuple[CommonEnvVar, bool]]:
+def check_env_vars(env_vars: list[str] | None = None) -> list[tuple[EnvName, bool]]:
     """
     Checks which of the provided or default API keys are set in the
     environment or .env files.
     """
     if not env_vars:
-        env_vars = get_all_common_env_vars()
+        env_vars = get_all_common_env_names()
 
-    return [(CommonEnvVar(key), env_var_is_set(key)) for key in env_vars]
+    return [(EnvName(key), env_var_is_set(key)) for key in env_vars]
 
 
 def warn_if_missing_api_keys(env_vars: list[str]) -> list[str]:
@@ -47,7 +47,7 @@ def format_env_check(env_vars: list[str] | None = None) -> Group:
     Formats the status of API key setup as a Rich Group.
     """
     if not env_vars:
-        env_vars = get_all_common_env_vars()
+        env_vars = get_all_common_env_names()
 
     dotenv_paths = load_dotenv_paths(True, True)
 
@@ -60,7 +60,7 @@ def format_env_check(env_vars: list[str] | None = None) -> Group:
     )
 
     api_key_status_texts = [
-        format_success_or_failure(is_found, key.api_provider_name)
+        format_success_or_failure(is_found, key.api_provider)
         for key, is_found in check_env_vars(env_vars)
     ]
 

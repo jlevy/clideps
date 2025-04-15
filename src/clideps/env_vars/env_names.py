@@ -6,10 +6,10 @@ from logging import getLogger
 log = getLogger(__name__)
 
 
-class CommonEnvVar(StrEnum):
+class EnvName(StrEnum):
     """
     Convenience names for some common API environment variables.
-    Any other env key is allowed too.
+    Any other env key is allowed too. This could be expanded.
     """
 
     OPENAI_API_KEY = "OPENAI_API_KEY"
@@ -26,7 +26,7 @@ class CommonEnvVar(StrEnum):
     EXA_API_KEY = "EXA_API_KEY"
 
     @classmethod
-    def api_key_for(cls, provider_name: str) -> CommonEnvVar | None:
+    def api_env_name(cls, provider_name: str) -> EnvName | None:
         """
         Get the ApiKey for a name, i.e. "openai" -> "OPENAI_API_KEY". Works for
         the keys in this common list.
@@ -34,7 +34,7 @@ class CommonEnvVar(StrEnum):
         return getattr(cls, provider_name.upper() + "_API_KEY", None)
 
     @property
-    def api_provider_name(self) -> str:
+    def api_provider(self) -> str:
         """
         Get the lowercase provider name for an API ("openai", "azure", etc.).
         This matches LiteLLM's provider names.
@@ -42,8 +42,8 @@ class CommonEnvVar(StrEnum):
         return self.value.removesuffix("_API_KEY").lower()
 
 
-def get_all_common_env_vars() -> list[str]:
+def get_all_common_env_names() -> list[str]:
     """
     Get a list of all some common environment variables we know about.
     """
-    return [var.value for var in CommonEnvVar]
+    return [var.value for var in EnvName]
