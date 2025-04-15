@@ -50,7 +50,7 @@ def get_pkg_info(pkg_name: str | PkgName) -> Pkg:
     """
     pkg_info = load_pkg_info().get(pkg_name)
     if not pkg_info:
-        raise UnknownPkgName(f"Package info not found for: {pkg_name}")
+        raise UnknownPkgName(f"Package info not found: {pkg_name}")
     return Pkg(pkg_name, pkg_info)
 
 

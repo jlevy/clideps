@@ -11,7 +11,7 @@ def cli_pkg_info(pkg_names: list[str]) -> None:
     all_pkg_info = load_pkg_info()
     names_to_show = sorted(pkg_names or list(all_pkg_info.keys()))
 
-    print_heading("Package info")
+    print_heading("Package Info")
     if not names_to_show:
         print_warning("No packages found to display info for.")
         return
@@ -34,28 +34,27 @@ def cli_pkg_check(pkg_names: list[str]) -> None:
         result = pkg_check(pkg_names)
     else:
         result = pkg_check()
-    print_heading("Package check results")
+    print_heading("Package Check Results")
     rprint(result.formatted())
     rprint()
 
 
 def cli_env_check(env_vars: list[str]) -> None:
-    print_heading("Environment check results")
+    print_heading("Environment Check Results")
     print_env_check(env_vars)
     rprint()
 
 
 def cli_terminal_info() -> None:
-    print_heading("Terminal info")
+    print_heading("Terminal Info")
     rprint(terminal_check().formatted())
 
 
 def cli_pkg_manager_check() -> None:
     installed_managers = pkg_manager_check()
     if installed_managers:
-        print_heading("Installed package managers")
-        for result in installed_managers:
-            rprint(result.formatted())
+        print_heading("Package Manager Status")
+        rprint(installed_managers.formatted())
     else:
         print_warning("No supported package managers found")
     rprint()

@@ -23,7 +23,7 @@ STYLE_EMPH = "bright_green"
 STYLE_KEY = "bold bright_blue"
 STYLE_CODE = "bold bright_cyan"
 
-STYLE_INFO = ""
+STYLE_INFO = "bright_black"
 STYLE_WARNING = "bold yellow"
 STYLE_ERROR = "bold red"
 STYLE_SUCCESS = "bold green"

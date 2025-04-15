@@ -6,7 +6,7 @@ from pathlib import Path
 
 from prettyfmt import fmt_path
 
-from clideps.pkgs.checker_registry import run_checker
+from clideps.pkgs.pkg_checker_registry import run_checker
 from clideps.pkgs.pkg_info import get_pkg_info, load_pkg_info
 from clideps.pkgs.pkg_model import (
     CheckInfo,
@@ -76,6 +76,9 @@ def pkg_check(
         if which_path:
             success, check_info = True, which_info
         else:
+            # Ensure common checkers are imported.
+            import clideps.pkgs.common_pkg_checkers  # pyright: ignore  # noqa: F401
+
             # Otherwise use a checker function.
             success, check_info = run_checker(dep.pkg_name)
         if success:

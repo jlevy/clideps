@@ -21,16 +21,16 @@ the package is available.
 _checker_registry: AtomicVar[dict[str, Checker]] = AtomicVar({})
 
 
-def register_checker(name: PkgName) -> Callable[[Checker], Checker]:
+def register_pkg_checker(pkg_name: PkgName) -> Callable[[Checker], Checker]:
     """
     Decorator to register a checker function for a package.
     """
 
     def decorator(func: Checker) -> Checker:
         with _checker_registry.updates() as registry:
-            if name in registry:
-                raise ConfigError(f"Checker '{name}' is already registered.")
-            registry[name] = func
+            if pkg_name in registry:
+                raise ConfigError(f"Checker '{pkg_name}' is already registered.")
+            registry[pkg_name] = func
         return func
 
     return decorator
@@ -56,4 +56,4 @@ def run_checker(name: PkgName) -> tuple[bool, CheckInfo]:
         except Exception as e:
             log.info("Package %r is not installed or not accessible (checker failed): %s", name, e)
             return False, f"Package `{name}` not found (checker failed): {e}"
-    return False, f"Package `{name}` not found (no checker found)"
+    return False, f"Package `{name}` not found (no command or checker found)"

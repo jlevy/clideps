@@ -46,12 +46,24 @@ CommandTemplate: TypeAlias = Callable[[list[str]], str]
 @dataclass(frozen=True)
 class PkgManager:
     name: str
+
     url: Url
+    """URL for more info about the package manager. Preferably a GitHub repo."""
+
     install_url: Url | None
+    """URL for installing the package manager. None if it's just a command."""
+
     platforms: tuple[Platform, ...]
+    """Platforms on which the package manager is available."""
+
     command_names: tuple[str, ...]
+    """Names of the command to run the package manager."""
+
     install_command_template: CommandTemplate
-    check_command: str
+    """Template for the command to install a package."""
+
+    version_command: str
+    """Command to check the version of the package manager and to confirm it is installed."""
 
     def get_install_command(self, *pkg_names: str) -> str:
         return self.install_command_template(list(pkg_names))
@@ -65,7 +77,16 @@ class PkgManagers(Enum):
         platforms=(Platform.Darwin,),
         command_names=("brew",),
         install_command_template=lambda args: f"brew install {' '.join(args)}",
-        check_command="brew --version",
+        version_command="brew --version",
+    )
+    macports = PkgManager(
+        name="macports",
+        url="https://macports.org/",
+        install_url="https://macports.org/install.php",
+        platforms=(Platform.Darwin,),
+        command_names=("port",),
+        install_command_template=lambda args: f"port install {' '.join(args)}",
+        version_command="port --version",
     )
     apt = PkgManager(
         name="apt",
@@ -74,7 +95,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Linux,),
         command_names=("apt-get",),
         install_command_template=lambda args: f"apt-get install {' '.join(args)}",
-        check_command="apt-get --version",
+        version_command="apt-get --version",
     )
     pixi = PkgManager(
         name="pixi",
@@ -83,7 +104,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Darwin, Platform.Linux, Platform.Windows),
         command_names=("pixi",),
         install_command_template=lambda args: f"pixi global install {' '.join(args)}",
-        check_command="pixi --version",
+        version_command="pixi --version",
     )
     pip = PkgManager(
         name="pip",
@@ -92,7 +113,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Darwin, Platform.Linux, Platform.Windows),
         command_names=("pip",),
         install_command_template=lambda args: f"pip install {' '.join(args)}",
-        check_command="pip --version",
+        version_command="pip --version",
     )
     winget = PkgManager(
         name="winget",
@@ -101,7 +122,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Windows,),
         command_names=("winget",),
         install_command_template=lambda args: f"winget install {' '.join(args)}",
-        check_command="winget --version",
+        version_command="winget --version",
     )
     scoop = PkgManager(
         name="scoop",
@@ -110,7 +131,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Windows,),
         command_names=("scoop",),
         install_command_template=lambda args: f"scoop install {' '.join(args)}",
-        check_command="scoop --version",
+        version_command="scoop --version",
     )
     chocolatey = PkgManager(
         name="chocolatey",
@@ -119,7 +140,7 @@ class PkgManagers(Enum):
         platforms=(Platform.Windows,),
         command_names=("choco",),
         install_command_template=lambda args: f"choco install {' '.join(args)}",
-        check_command="choco --version",
+        version_command="choco --version",
     )
 
 
