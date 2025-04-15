@@ -1,188 +1,28 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum, StrEnum
-from typing import TypeAlias
+from enum import Enum
 
 import yaml
 from pydantic import BaseModel
 from rich.console import Group
 from rich.text import Text
 
+from clideps.pkgs.common_pkg_managers import get_all_pkg_managers
+from clideps.pkgs.pkg_types import CheckInfo, InstallCommand, PkgManager, PkgName
 from clideps.ui.rich_output import format_name_and_value, format_status
 from clideps.ui.styles import STYLE_HEADING, STYLE_HINT
 
-PkgName: TypeAlias = str
-"""Our name for a system package."""
 
-CheckInfo: TypeAlias = str
-"""
-More info about a found package (like the command that was found) or a missing
-package (like the exception message from the checker).
-"""
-
-PkgTag: TypeAlias = str
-"""Tags for a package."""
-
-Url: TypeAlias = str
-"""Use for URLs for better type clarity."""
-
-
-class Platform(StrEnum):
-    """
-    The major platforms. We handle specific OS flavors (e.g. ubuntu vs debian) by just
-    checking for package managers.
-    """
-
-    Darwin = "Darwin"
-    Linux = "Linux"
-    Windows = "Windows"
-
-
-CommandTemplate: TypeAlias = Callable[[list[str]], str]
-
-
-@dataclass(frozen=True)
-class PkgManager:
-    name: str
-
-    url: Url
-    """URL for more info about the package manager. Preferably a GitHub repo."""
-
-    install_url: Url | None
-    """URL for installing the package manager. None if it's just a command."""
-
-    platforms: tuple[Platform, ...]
-    """Platforms on which the package manager is available."""
-
-    command_names: tuple[str, ...]
-    """Names of the command to run the package manager."""
-
-    install_command_template: CommandTemplate
-    """Template for the command to install a package."""
-
-    version_command: str
-    """Command to check the version of the package manager and to confirm it is installed."""
-
-    def get_install_command(self, *pkg_names: str) -> str:
-        return self.install_command_template(list(pkg_names))
-
-
-class PkgManagers(Enum):
-    brew = PkgManager(
-        name="brew",
-        url="https://github.com/Homebrew/brew",
-        install_url="https://brew.sh/",
-        platforms=(Platform.Darwin,),
-        command_names=("brew",),
-        install_command_template=lambda args: f"brew install {' '.join(args)}",
-        version_command="brew --version",
-    )
-    macports = PkgManager(
-        name="macports",
-        url="https://macports.org/",
-        install_url="https://macports.org/install.php",
-        platforms=(Platform.Darwin,),
-        command_names=("port",),
-        install_command_template=lambda args: f"port install {' '.join(args)}",
-        version_command="port --version",
-    )
-    apt = PkgManager(
-        name="apt",
-        url="https://debian-handbook.info/browse/stable/sect.apt-get.html",
-        install_url=None,
-        platforms=(Platform.Linux,),
-        command_names=("apt-get",),
-        install_command_template=lambda args: f"apt-get install {' '.join(args)}",
-        version_command="apt-get --version",
-    )
-    pixi = PkgManager(
-        name="pixi",
-        url="https://github.com/prefix-dev/pixi",
-        install_url="https://pixi.sh/latest/",
-        platforms=(Platform.Darwin, Platform.Linux, Platform.Windows),
-        command_names=("pixi",),
-        install_command_template=lambda args: f"pixi global install {' '.join(args)}",
-        version_command="pixi --version",
-    )
-    pip = PkgManager(
-        name="pip",
-        url="https://github.com/pypa/pip",
-        install_url="https://pip.pypa.io/en/stable/installation/",
-        platforms=(Platform.Darwin, Platform.Linux, Platform.Windows),
-        command_names=("pip",),
-        install_command_template=lambda args: f"pip install {' '.join(args)}",
-        version_command="pip --version",
-    )
-    winget = PkgManager(
-        name="winget",
-        url="https://github.com/microsoft/winget-cli",
-        install_url="https://apps.microsoft.com/detail/9nblggh4nns1",
-        platforms=(Platform.Windows,),
-        command_names=("winget",),
-        install_command_template=lambda args: f"winget install {' '.join(args)}",
-        version_command="winget --version",
-    )
-    scoop = PkgManager(
-        name="scoop",
-        url="https://github.com/ScoopInstaller/Scoop",
-        install_url="https://scoop.sh/",
-        platforms=(Platform.Windows,),
-        command_names=("scoop",),
-        install_command_template=lambda args: f"scoop install {' '.join(args)}",
-        version_command="scoop --version",
-    )
-    chocolatey = PkgManager(
-        name="chocolatey",
-        url="https://chocolatey.org/",
-        install_url="https://chocolatey.org/install",
-        platforms=(Platform.Windows,),
-        command_names=("choco",),
-        install_command_template=lambda args: f"choco install {' '.join(args)}",
-        version_command="choco --version",
-    )
-
-
-class PkgManagerNames(BaseModel):
+class PkgNames(BaseModel):
     brew: str | None = None
     apt: str | None = None
     pixi: str | None = None
     pip: str | None = None
     winget: str | None = None
+    scoop: str | None = None
     chocolatey: str | None = None
-
-    def install_info(self) -> dict[PkgManager, str]:
-        """
-        Return all install info for this package for each package manager.
-        """
-        install_info: dict[PkgManager, str] = {}
-        for pm in PkgManagers:
-            pkg_install_name = getattr(self, pm.name, None)
-            if pkg_install_name:
-                install_info[pm.value] = pm.value.get_install_command(pkg_install_name)
-        return install_info
-
-    def formatted(self) -> Group:
-        """
-        Formatted info on how to install a given package using available package managers.
-        """
-        install_commands = self.install_info()
-        if not install_commands:
-            return Group()
-
-        install_texts: list[Text] = []
-        for pkg_manager, install_command in install_commands.items():
-            install_texts.append(
-                format_name_and_value(
-                    f"{pkg_manager.name} ({', '.join(pkg_manager.platforms)})",
-                    f"`{install_command}`",
-                    extra_indent="  ",
-                )
-            )
-
-        # Combine the header and the list items
-        return Group(Text("Available via:", style=STYLE_HINT), *install_texts)
+    macports: str | None = None
 
 
 class PkgInfo(BaseModel):
@@ -194,8 +34,8 @@ class PkgInfo(BaseModel):
     command_names: tuple[str, ...]
     """Commands offered by the package (if any)."""
 
-    pkg_managers: PkgManagerNames = PkgManagerNames()
-    """Package manager install names."""
+    install_names: PkgNames = PkgNames()
+    """Install names for each package manager."""
 
     tags: tuple[str, ...] = ()
     """Tags for the package."""
@@ -214,25 +54,6 @@ class PkgInfo(BaseModel):
         data = yaml.safe_load(yaml_str)
         return cls.model_validate(data)
 
-    def formatted(self) -> Group:
-        """
-        Formatted info about a package.
-        """
-        texts: list[Text | Group] = []
-
-        if self.command_names:
-            cmds_str = ", ".join(f"`{cmd}`" for cmd in self.command_names)
-            texts.append(Text.assemble(("Commands: ", STYLE_HINT), (cmds_str, "")))
-
-        if self.comment:
-            texts.append(Text(self.comment, style=STYLE_HINT))
-        # Get the formatted install options from PkgManagerNames
-        install_group = self.pkg_managers.formatted()
-        if install_group:
-            texts.append(install_group)
-
-        return Group(*texts)
-
 
 @dataclass(frozen=True, order=True)
 class Pkg:
@@ -243,10 +64,67 @@ class Pkg:
     name: PkgName
     info: PkgInfo
 
+    def get_applicable_pms(self) -> list[PkgManager]:
+        """
+        Get the list of package managers that can install this package.
+        """
+        return [pm for pm in get_all_pkg_managers() if getattr(self.info.install_names, pm.name)]
+
+    def get_install_name(self, pm: PkgManager) -> str:
+        """
+        Get the package name for use with the given package manager.
+        """
+        install_name = getattr(self.info.install_names, pm.name)
+        if not install_name:
+            raise ValueError(
+                f"Install name for `{self.name}` under package manager `{pm.name}` not "
+                f"found, only have: {self.info.install_names}"
+            )
+        return install_name
+
+    def format_install_info(self) -> Group:
+        """
+        Formatted info on how to install a given package using available package managers.
+        """
+        install_commands = get_install_commands(self.get_applicable_pms(), [self])
+        if not install_commands:
+            return Group()
+
+        install_texts: list[Text] = []
+        for pkg_manager, install_command in install_commands.items():
+            install_texts.append(
+                format_name_and_value(
+                    f"{pkg_manager.name} ({', '.join(pkg_manager.platforms)})",
+                    f"`{install_command}`",
+                    extra_indent="  ",
+                )
+            )
+
+        # Combine the header and the list items
+        return Group(Text("Available via:", style=STYLE_HINT), *install_texts)
+
+    def formatted_info(self) -> Group:
+        """
+        Formatted info about a package.
+        """
+        texts: list[Text | Group] = []
+
+        if self.info.command_names:
+            cmds_str = ", ".join(f"`{cmd}`" for cmd in self.info.command_names)
+            texts.append(Text.assemble(("Commands: ", STYLE_HINT), (cmds_str, "")))
+
+        if self.info.comment:
+            texts.append(Text(self.info.comment, style=STYLE_HINT))
+
+        texts.append(self.format_install_info())
+
+        return Group(*texts)
+
     def formatted(self) -> Group:
         tests: list[Text | Group] = []
         tests.append(Text(f"{self.name}", STYLE_HEADING))
-        tests.append(self.info.formatted())
+        tests.append(self.formatted_info())
+
         return Group(*tests)
 
 
@@ -316,3 +194,27 @@ class PkgCheckResult:
             texts.append(doc)
 
         return Group(*texts)
+
+
+def get_install_command(pkg_manager: PkgManager, pkgs: list[Pkg]) -> InstallCommand:
+    """
+    Get the install command for a package manager to install a list of packages.
+    """
+    install_names = [pkg.get_install_name(pkg_manager) for pkg in pkgs]
+    return pkg_manager.install_command_template(list(install_names))
+
+
+def get_install_commands(
+    pkg_managers: list[PkgManager], pkgs: list[Pkg]
+) -> dict[PkgManager, InstallCommand]:
+    """
+    Get the install commands for a list of package managers to install a list of packages.
+    """
+    install_info: dict[PkgManager, InstallCommand] = {}
+
+    for pm in pkg_managers:
+        install_command = get_install_command(pm, pkgs)
+        if install_command:
+            install_info[pm] = install_command
+
+    return install_info

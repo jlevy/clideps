@@ -8,7 +8,8 @@ from prettyfmt import fmt_path
 from rich.console import Group
 from rich.text import Text
 
-from clideps.pkgs.pkg_model import PkgManager, PkgManagers
+from clideps.pkgs.common_pkg_managers import PkgManagers
+from clideps.pkgs.pkg_model import PkgManager
 from clideps.pkgs.platform_checks import get_platform
 from clideps.ui.rich_output import STYLE_HINT, format_status
 

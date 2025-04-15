@@ -3,7 +3,7 @@ import shutil
 from dataclasses import dataclass
 from functools import cache
 
-from clideps.pkgs.pkg_model import PkgManager, PkgManagers, Platform
+from clideps.pkgs.pkg_types import PkgManager, Platform
 
 
 @cache
@@ -18,6 +18,8 @@ def compatible_pkg_managers() -> list[PkgManager]:
     """
     Package managers that are compatible with the current platform.
     """
+    from clideps.pkgs.common_pkg_managers import PkgManagers
+
     platform = get_platform()
     return [
         pkg_manager.value for pkg_manager in PkgManagers if platform in pkg_manager.value.platforms

@@ -23,7 +23,9 @@ log = logging.getLogger(__name__)
 
 def which_tool(pkg: PkgInfo) -> tuple[Path | None, CheckInfo]:
     """
-    Does one of the package's commands exist in the PATH?
+    Does one of the package's commands exist in the path?
+    This only works for packages that have installed commands (not pure
+    libraries).
     """
     found_path = next(filter(None, (shutil.which(name) for name in pkg.command_names)), None)
     path = Path(found_path) if found_path else None

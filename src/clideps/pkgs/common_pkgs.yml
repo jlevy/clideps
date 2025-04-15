@@ -6,7 +6,7 @@ less:
   command_names: [less]
   comment: |-
     Almost always pre-installed but listing so dependency can be declared.
-  pkg_managers: {}
+  install_names: {}
   tags:
     - essential
     - shell
@@ -14,7 +14,7 @@ less:
 tail:
   command_names: [tail]
   comment: null
-  pkg_managers: {}
+  install_names: {}
   tags:
     - essential
     - shell
@@ -23,7 +23,7 @@ bat:
   command_names: [batcat, bat]
   comment: |-
     Not available on ubuntu, but in pixi.
-  pkg_managers:
+  install_names:
     brew: bat
     pixi: bat
     winget: sharkdp.bat
@@ -34,7 +34,7 @@ bat:
 ripgrep:
   command_names: [rg]
   comment: null
-  pkg_managers:
+  install_names:
     brew: ripgrep
     apt: ripgrep
     winget: BurntSushi.ripgrep
@@ -45,7 +45,7 @@ ripgrep:
 eza:
   command_names: [eza]
   comment: null
-  pkg_managers:
+  install_names:
     brew: eza
     apt: eza
     winget: eza-community.eza
@@ -56,7 +56,7 @@ eza:
 zoxide:
   command_names: [zoxide]
   comment: null
-  pkg_managers:
+  install_names:
     brew: zoxide
     apt: zoxide
     winget: ajeetdsouza.zoxide
@@ -67,7 +67,7 @@ zoxide:
 hexyl:
   command_names: [hexyl]
   comment: null
-  pkg_managers:
+  install_names:
     brew: hexyl
     apt: hexyl
     winget: sharkdp.hexyl
@@ -78,7 +78,7 @@ hexyl:
 pygmentize:
   command_names: [pygmentize]
   comment: null
-  pkg_managers:
+  install_names:
     brew: pygments
     apt: python3-pygments
     pip: Pygments
@@ -88,7 +88,7 @@ libmagic:
   comment: |-
     For macOS and Linux, brew or apt gives the latest binaries. For Windows, it may be
     easier to use pip.
-  pkg_managers:
+  install_names:
     brew: libmagic
     apt: libmagic1
     pip: python-magic-bin
@@ -100,7 +100,7 @@ libgl1:
   command_names: []
   comment: |-
     Needed on ubuntu along with ffmpeg.
-  pkg_managers:
+  install_names:
     apt: libgl1
   tags:
     - library
@@ -109,7 +109,7 @@ ffmpeg:
   command_names: [ffmpeg]
   comment: |-
     Needed by yt-dlp and many other tools.
-  pkg_managers:
+  install_names:
     brew: ffmpeg
     apt: ffmpeg
     winget: Gyan.FFmpeg
@@ -121,7 +121,7 @@ ffmpeg:
 imagemagick:
   command_names: [magick]
   comment: null
-  pkg_managers:
+  install_names:
     brew: imagemagick
     apt: imagemagick
     winget: ImageMagick.ImageMagick
@@ -133,7 +133,7 @@ dust:
   command_names: [dust]
   comment: |-
     Not available on ubuntu, but in pixi.
-  pkg_managers:
+  install_names:
     brew: dust
     pixi: dust
     winget: bootandy.dust
@@ -145,7 +145,7 @@ duf:
   command_names: [duf]
   comment: |-
     Not in winget. Only in unstable on ubuntu, but in pixi.
-  pkg_managers:
+  install_names:
     brew: duf
     pixi: duf
     chocolatey: duf
