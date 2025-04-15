@@ -1,4 +1,4 @@
-from clideps.env.env_check import print_env_check
+from clideps.env_vars.env_check import print_env_check
 from clideps.errors import UnknownPkgName
 from clideps.pkgs.pkg_check import pkg_check
 from clideps.pkgs.pkg_info import get_pkg_info, load_pkg_info
