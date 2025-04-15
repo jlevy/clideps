@@ -7,7 +7,7 @@ from rich import print as rprint
 from rich.console import Group
 from rich.text import Text
 
-from clideps.env_vars.common_env_vars import COMMON_ENV_VARS, CommonEnvVar
+from clideps.env_vars.common_env_vars import CommonEnvVar, get_all_common_env_vars
 from clideps.env_vars.dotenv_utils import env_var_is_set, load_dotenv_paths
 from clideps.ui.rich_output import format_success_or_failure
 
@@ -23,7 +23,7 @@ def check_env_vars(env_vars: list[str] | None = None) -> list[tuple[CommonEnvVar
     environment or .env files.
     """
     if not env_vars:
-        env_vars = COMMON_ENV_VARS
+        env_vars = get_all_common_env_vars()
 
     return [(CommonEnvVar(key), env_var_is_set(key)) for key in env_vars]
 
@@ -47,7 +47,7 @@ def format_env_check(env_vars: list[str] | None = None) -> Group:
     Formats the status of API key setup as a Rich Group.
     """
     if not env_vars:
-        env_vars = COMMON_ENV_VARS
+        env_vars = get_all_common_env_vars()
 
     dotenv_paths = load_dotenv_paths(True, True)
 

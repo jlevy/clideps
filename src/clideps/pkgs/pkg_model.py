@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
 
@@ -8,15 +9,20 @@ from pydantic import BaseModel
 from rich.console import Group
 from rich.text import Text
 
+# pyright: reportImportCycles=false
+from clideps.errors import PkgMissing
 from clideps.pkgs.common_pkg_managers import get_all_pkg_managers
 from clideps.pkgs.pkg_types import CheckInfo, InstallCommand, PkgManager, PkgName
-from clideps.ui.rich_output import format_name_and_value, format_status
+from clideps.ui.rich_output import format_name_and_value, format_status, format_success_or_failure
 from clideps.ui.styles import STYLE_HEADING, STYLE_HINT
 
 
 class PkgNames(BaseModel):
     brew: str | None = None
     apt: str | None = None
+    dnf: str | None = None
+    pacman: str | None = None
+    zypper: str | None = None
     pixi: str | None = None
     pip: str | None = None
     winget: str | None = None
@@ -64,11 +70,17 @@ class Pkg:
     name: PkgName
     info: PkgInfo
 
+    def can_be_installed_with(self, pm: PkgManager) -> bool:
+        """
+        Check if this package can be installed with the given package manager.
+        """
+        return getattr(self.info.install_names, pm.name)
+
     def get_applicable_pms(self) -> list[PkgManager]:
         """
         Get the list of package managers that can install this package.
         """
-        return [pm for pm in get_all_pkg_managers() if getattr(self.info.install_names, pm.name)]
+        return [pm for pm in get_all_pkg_managers() if self.can_be_installed_with(pm)]
 
     def get_install_name(self, pm: PkgManager) -> str:
         """
@@ -86,7 +98,7 @@ class Pkg:
         """
         Formatted info on how to install a given package using available package managers.
         """
-        install_commands = get_install_commands(self.get_applicable_pms(), [self])
+        install_commands = get_install_commands(self.get_applicable_pms(), self.name)
         if not install_commands:
             return Group()
 
@@ -187,7 +199,6 @@ class PkgCheckResult:
             missing_str = self.missing_info.get(pkg.name, "Recommended package not found")
             doc = format_status("warning", missing_str)
             texts.append(doc)
-
         for pkg in self.missing_optional:
             missing_str = self.missing_info.get(pkg.name, "Optional package not found")
             doc = format_status("info", missing_str)
@@ -195,8 +206,35 @@ class PkgCheckResult:
 
         return Group(*texts)
 
+    def is_found(self, pkg_name: PkgName) -> bool:
+        return any(pkg.name == pkg_name for pkg in self.found_pkgs)
 
-def get_install_command(pkg_manager: PkgManager, pkgs: list[Pkg]) -> InstallCommand:
+    def require(self, *pkg_names: PkgName) -> None:
+        for pkg_name in pkg_names:
+            if not self.is_found(pkg_name):
+                # print_missing_tool_help(pkg)
+                raise PkgMissing(f"`{pkg_name}` needed but not found")
+
+    def missing(self, *pkg_names: PkgName) -> list[PkgName]:
+        return [pkg_name for pkg_name in pkg_names if not self.is_found(pkg_name)]
+
+    def warn_if_missing(self, *pkg_names: PkgName) -> list[PkgName]:
+        from clideps.pkgs.install_suggestions import print_missing_pkg_warning
+
+        missing = self.missing(*pkg_names)
+        if missing:
+            print_missing_pkg_warning(*missing)
+        return missing
+
+    def status(self) -> Text:
+        texts: list[Text] = []
+        for pkg in self.found_pkgs:
+            texts.append(format_success_or_failure(True, pkg.name))
+
+        return Text.assemble("Local system packages found: ", Text(" ").join(texts))
+
+
+def get_install_command(pkg_manager: PkgManager, *pkgs: Pkg) -> InstallCommand:
     """
     Get the install command for a package manager to install a list of packages.
     """
@@ -205,15 +243,24 @@ def get_install_command(pkg_manager: PkgManager, pkgs: list[Pkg]) -> InstallComm
 
 
 def get_install_commands(
-    pkg_managers: list[PkgManager], pkgs: list[Pkg]
+    pkg_managers: list[PkgManager], *pkg_names: PkgName
 ) -> dict[PkgManager, InstallCommand]:
     """
-    Get the install commands for a list of package managers to install a list of packages.
+    Get the install commands for a list of package managers to install a list of packages,
+    consolidating commands for each package manager.
     """
-    install_info: dict[PkgManager, InstallCommand] = {}
+    from clideps.pkgs.pkg_info import get_pkg
 
-    for pm in pkg_managers:
-        install_command = get_install_command(pm, pkgs)
+    installable_with: dict[PkgManager, list[Pkg]] = defaultdict(list)
+    for pkg_name in pkg_names:
+        for pm in sorted(pkg_managers):
+            pkg = get_pkg(pkg_name)
+            if pkg.can_be_installed_with(pm):
+                installable_with[pm].append(pkg)
+
+    install_info: dict[PkgManager, InstallCommand] = {}
+    for pm, pkgs_for_pm in installable_with.items():
+        install_command = get_install_command(pm, *pkgs_for_pm)
         if install_command:
             install_info[pm] = install_command
 

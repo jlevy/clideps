@@ -1,7 +1,7 @@
 from clideps.env_vars.env_check import print_env_check
 from clideps.errors import UnknownPkgName
-from clideps.pkgs.pkg_check import pkg_check
-from clideps.pkgs.pkg_info import get_pkg_info, load_pkg_info
+from clideps.pkgs.pkg_check import pkg_check, warn_if_missing
+from clideps.pkgs.pkg_info import get_pkg, load_pkg_info
 from clideps.pkgs.pkg_manager_check import pkg_manager_check
 from clideps.terminal.terminal_features import terminal_check
 from clideps.ui.rich_output import print_error, print_heading, print_warning, rprint
@@ -18,7 +18,7 @@ def cli_pkg_info(pkg_names: list[str]) -> None:
 
     for name in names_to_show:
         try:
-            pkg = get_pkg_info(name)
+            pkg = get_pkg(name)
             rprint(pkg.formatted())
             rprint()
         except KeyError:
@@ -37,6 +37,10 @@ def cli_pkg_check(pkg_names: list[str]) -> None:
     print_heading("Package Check Results")
     rprint(result.formatted())
     rprint()
+
+
+def cli_warn_if_missing(pkg_names: list[str]) -> None:
+    warn_if_missing(pkg_names)
 
 
 def cli_env_check(env_vars: list[str]) -> None:

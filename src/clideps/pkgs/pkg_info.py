@@ -6,6 +6,7 @@ import yaml
 from cachetools import TTLCache, cached
 from prettyfmt import fmt_path
 
+# pyright: reportImportCycles=false
 from clideps.errors import UnknownPkgName
 from clideps.pkgs.pkg_model import Pkg, PkgInfo, PkgName
 
@@ -44,7 +45,17 @@ def load_pkg_info(*extra_sources: Path) -> dict[PkgName, PkgInfo]:  # noqa: F821
     return pkg_info
 
 
-def get_pkg_info(pkg_name: str | PkgName) -> Pkg:
+def get_all_common_pkgs() -> list[Pkg]:
+    """
+    Get a list of all common packages.
+    """
+    from clideps.pkgs.pkg_info import load_pkg_info
+
+    pkg_info = load_pkg_info()
+    return [Pkg(name, info) for name, info in pkg_info.items()]
+
+
+def get_pkg(pkg_name: PkgName) -> Pkg:
     """
     Look up a package by name, returning None if not found.
     """
@@ -58,4 +69,4 @@ def validate_pkg_name(pkg_name: str) -> PkgName:
     """
     Validate a package name is a known package.
     """
-    return get_pkg_info(pkg_name).name
+    return get_pkg(pkg_name).name

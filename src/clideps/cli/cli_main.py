@@ -6,6 +6,7 @@ More info: https://github.com/jlevy/clideps
 """
 
 import argparse
+import logging
 import sys
 from importlib.metadata import version
 
@@ -15,6 +16,7 @@ from clideps.cli.cli_commands import (
     cli_pkg_info,
     cli_pkg_manager_check,
     cli_terminal_info,
+    cli_warn_if_missing,
 )
 from clideps.ui.argparse_utils import WrappedColorFormatter
 from clideps.ui.rich_output import print_error, rprint
@@ -40,9 +42,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=f"{APP_NAME} {get_app_version()}")
     parser.add_argument("--verbose", action="store_true", help="verbose output")
+    parser.add_argument("--debug", action="store_true", help="debug output")
 
     # Parsers for each command.
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    pkg_info_parser = subparsers.add_parser(
+        "pkg_info",
+        help="Show general info about given packages.",
+        description="""
+        Show general info about given packages. Does not check if they are installed.
+        """,
+        formatter_class=WrappedColorFormatter,
+    )
+    pkg_info_parser.add_argument(
+        "pkg_names", type=str, nargs="*", help="package names to show info for, or all if not given"
+    )
 
     pkg_check_parser = subparsers.add_parser(
         "pkg_check",
@@ -56,16 +71,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     pkg_check_parser.add_argument("pkg_names", type=str, nargs="*", help="package names to check")
 
-    pkg_info_parser = subparsers.add_parser(
-        "pkg_info",
-        help="Show general info about given packages.",
+    warn_if_missing_parser = subparsers.add_parser(
+        "warn_if_missing",
+        help="Warn if the given packages are not installed.",
         description="""
-        Show general info about given packages. Does not check if they are installed.
+        Warn if the given packages are not installed. Also give suggestions for
+        how to install them.
         """,
         formatter_class=WrappedColorFormatter,
     )
-    pkg_info_parser.add_argument(
-        "pkg_names", type=str, nargs="*", help="package names to show info for, or all if not given"
+    warn_if_missing_parser.add_argument(
+        "pkg_names", type=str, nargs="+", help="package names to warn for"
     )
 
     subparsers.add_parser(
@@ -120,11 +136,16 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
     try:
-        if args.command == "pkg_check":
-            cli_pkg_check(args.pkg_names)
-        elif args.command == "pkg_info":
+        if args.command == "pkg_info":
             cli_pkg_info(args.pkg_names)
+        elif args.command == "pkg_check":
+            cli_pkg_check(args.pkg_names)
+        elif args.command == "warn_if_missing":
+            cli_warn_if_missing(args.pkg_names)
         elif args.command == "pkg_manager_check":
             cli_pkg_manager_check()
         elif args.command == "env_check":
@@ -141,7 +162,7 @@ def main() -> None:
         print_error(str(e))
         rprint("Use --verbose or --debug to see the full traceback.", style=STYLE_HINT)
         rprint()
-        if args.verbose:
+        if args.verbose or args.debug:
             raise
         sys.exit(1)
 

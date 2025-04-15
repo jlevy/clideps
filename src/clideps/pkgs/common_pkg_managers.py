@@ -6,6 +6,8 @@ from clideps.pkgs.pkg_types import PkgManager, Platform
 
 
 class PkgManagers(Enum):
+    # TODO: Testing of more of these. Mostly only tested on macOS and ubuntu currently.
+
     brew = PkgManager(
         name="brew",
         url="https://github.com/Homebrew/brew",
@@ -28,12 +30,42 @@ class PkgManagers(Enum):
     )
     apt = PkgManager(
         name="apt",
-        url="https://debian-handbook.info/browse/stable/sect.apt-get.html",
-        install_url=None,
+        url="https://wiki.debian.org/Apt",
+        install_url=None,  # Core OS component
         platforms=(Platform.Linux,),
-        command_names=("apt-get", "apt"),
-        install_command_template=lambda args: f"sudo apt-get update && sudo apt-get install -y {' '.join(args)}",
+        command_names=("apt", "apt-get"),
+        install_command_template=lambda args: f"sudo apt-get install -y {' '.join(args)}",
         version_command="apt --version",
+        priority=2,
+    )
+    dnf = PkgManager(
+        name="dnf",
+        url="https://github.com/rpm-software-management/dnf",
+        install_url=None,  # Core OS component
+        platforms=(Platform.Linux,),  # Fedora/RHEL
+        command_names=("dnf",),
+        install_command_template=lambda args: f"sudo dnf install -y {' '.join(args)}",
+        version_command="dnf --version",
+        priority=2,
+    )
+    pacman = PkgManager(
+        name="pacman",
+        url="https://archlinux.org/pacman/",
+        install_url=None,  # Core OS component
+        platforms=(Platform.Linux,),  # Arch
+        command_names=("pacman",),
+        install_command_template=lambda args: f"sudo pacman -S --noconfirm {' '.join(args)}",
+        version_command="pacman --version",
+        priority=2,
+    )
+    zypper = PkgManager(
+        name="zypper",
+        url="https://github.com/openSUSE/zypper",
+        install_url=None,  # Core OS component
+        platforms=(Platform.Linux,),  # openSUSE/SLES
+        command_names=("zypper",),
+        install_command_template=lambda args: f"sudo zypper install --non-interactive {' '.join(args)}",
+        version_command="zypper --version",
         priority=2,
     )
     pixi = PkgManager(

@@ -42,7 +42,8 @@ class CommonEnvVar(StrEnum):
         return self.value.removesuffix("_API_KEY").lower()
 
 
-COMMON_ENV_VARS = [key.value for key in CommonEnvVar]
-"""
-Convenience list of these common environment variables.
-"""
+def get_all_common_env_vars() -> list[str]:
+    """
+    Get a list of all some common environment variables we know about.
+    """
+    return [var.value for var in CommonEnvVar]

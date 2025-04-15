@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 class PkgManagerCheckResult:
     """Result of checking a single package manager."""
 
-    pm: PkgManager
+    pkg_manager: PkgManager
     path: Path | None = None
     version_output: str | None = None
 
@@ -35,7 +35,9 @@ class PkgManagerCheckResult:
             details.append(f"at {fmt_path(self.path)}")
 
         details_str = " ".join(details)
-        message = Text.assemble((f"`{self.pm.name}`", ""), (f" ({details_str})", STYLE_HINT))
+        message = Text.assemble(
+            (f"`{self.pkg_manager.name}`", ""), (f" ({details_str})", STYLE_HINT)
+        )
         return format_status(True, message)
 
 
@@ -71,10 +73,12 @@ def pkg_manager_check() -> PkgManagerCheckResults:
 
     for pm_enum in PkgManagers:
         pm = pm_enum.value
+
+        # Skip if not applicable to this platform.
         if current_platform not in pm.platforms:
             continue
 
-        # Assume missing initially for this platform
+        # Assume missing initially for this platform.
         is_missing = True
         found_path: Path | None = None
         version_output: str | None = None
@@ -121,7 +125,9 @@ def pkg_manager_check() -> PkgManagerCheckResults:
             # We only add to found if version_output is not None, implying the check command ran successfully.
             if version_output is not None:
                 found_pkg_managers.append(
-                    PkgManagerCheckResult(pm=pm, path=found_path, version_output=version_output)
+                    PkgManagerCheckResult(
+                        pkg_manager=pm, path=found_path, version_output=version_output
+                    )
                 )
             else:
                 # Should not happen if is_missing is False, but as a safeguard
@@ -130,4 +136,7 @@ def pkg_manager_check() -> PkgManagerCheckResults:
                 )
                 missing_pkg_managers.append(pm)
 
+    log.info(
+        f"Found {len(found_pkg_managers)} package managers: {', '.join(fm.pkg_manager.name for fm in found_pkg_managers)}"
+    )
     return PkgManagerCheckResults(found=found_pkg_managers, missing=missing_pkg_managers)
