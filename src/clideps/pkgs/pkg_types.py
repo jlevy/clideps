@@ -47,6 +47,9 @@ class PkgManager:
     install_url: Url | None
     """URL for installing the package manager. None if it's just a command."""
 
+    install_command: InstallCommand | None
+    """Command to install the package manager. Generally the primary cross-platform native way."""
+
     platforms: tuple[Platform, ...]
     """Platforms on which the package manager is available."""
 

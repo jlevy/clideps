@@ -120,11 +120,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     subparsers.add_parser(
-        "check_all",
-        help="Show information about all the packages and the terminal.",
+        "check",
+        help="""
+        Run all checks to show terminal, package manager, .env, and status of common packages.
+        """,
         description="""
-        Show information about all the packages and the terminal.
-        Same as running `clideps terminal_info`, `clideps env_check`, and `clideps pkg_check`.
+        Run all checks to show terminal, package manager, .env, and status of common packages.
+        Same as running `terminal_info`, `pkg_manager_check`, `env_check`, and `pkg_check`.
         """,
         formatter_class=WrappedColorFormatter,
     )
@@ -152,7 +154,7 @@ def main() -> None:
             cli_env_check(args.env_vars)
         elif args.command == "terminal_info":
             cli_terminal_info()
-        elif args.command == "check_all":
+        elif args.command == "check":
             cli_terminal_info()
             cli_pkg_manager_check()
             cli_env_check([])

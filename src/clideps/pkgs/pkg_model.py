@@ -79,13 +79,22 @@ class Pkg:
         """
         Check if this package can be installed with the given package manager.
         """
-        return getattr(self.info.install_names, pm.name)
+        return getattr(self.info.install_names, pm.name, None) is not None
 
     def get_applicable_pms(self) -> list[PkgManager]:
         """
         Get the list of package managers that can install this package.
         """
         return [pm for pm in get_all_pkg_managers() if self.can_be_installed_with(pm)]
+
+    def get_applicable_platforms(self) -> list[Platform]:
+        """
+        Get the list of platforms where we know how to install this package.
+        """
+        platforms: set[Platform] = set()
+        for pm in self.get_applicable_pms():
+            platforms.update(pm.platforms)
+        return list(platforms)
 
     def get_install_name(self, pm: PkgManager) -> str:
         """
