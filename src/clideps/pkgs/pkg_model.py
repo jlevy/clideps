@@ -12,12 +12,17 @@ from rich.text import Text
 # pyright: reportImportCycles=false
 from clideps.errors import PkgMissing
 from clideps.pkgs.common_pkg_managers import get_all_pkg_managers
-from clideps.pkgs.pkg_types import CheckInfo, InstallCommand, PkgManager, PkgName
+from clideps.pkgs.pkg_types import CheckInfo, InstallCommand, PkgManager, PkgName, Platform
+from clideps.pkgs.platform_checks import get_platform
 from clideps.ui.rich_output import format_name_and_value, format_status, format_success_or_failure
 from clideps.ui.styles import STYLE_HEADING, STYLE_HINT
 
 
-class PkgNames(BaseModel):
+class PkgInstallNames(BaseModel):
+    """
+    Install names for each package manager for a given package.
+    """
+
     brew: str | None = None
     apt: str | None = None
     dnf: str | None = None
@@ -40,14 +45,14 @@ class PkgInfo(BaseModel):
     command_names: tuple[str, ...]
     """Commands offered by the package (if any)."""
 
-    install_names: PkgNames = PkgNames()
+    install_names: PkgInstallNames = PkgInstallNames()
     """Install names for each package manager."""
 
     tags: tuple[str, ...] = ()
     """Tags for the package."""
 
     comment: str | None = None
-    """Notes about the package or its availability on each platform."""
+    """Notes about the package or its availability on each platform. Shown to the user if present."""
 
     def to_yaml(self) -> str:
         """Serialize the PkgInfo to YAML format."""
@@ -209,7 +214,14 @@ class PkgCheckResult:
     def is_found(self, pkg_name: PkgName) -> bool:
         return any(pkg.name == pkg_name for pkg in self.found_pkgs)
 
-    def require(self, *pkg_names: PkgName) -> None:
+    def require(self, *pkg_names: PkgName, on_platforms: list[Platform] | None = None) -> None:
+        """
+        Require a package to be installed. If `on_platforms` is provided, the package will only be
+        required if the current platform is in the list.
+        """
+        if on_platforms and get_platform() not in on_platforms:
+            return
+
         for pkg_name in pkg_names:
             if not self.is_found(pkg_name):
                 # print_missing_tool_help(pkg)

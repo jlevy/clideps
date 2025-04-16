@@ -5,28 +5,44 @@
 less:
   command_names: [less]
   comment: |-
-    Almost always pre-installed but listing so dependency can be declared.
-  install_names: {}
+    Almost always pre-installed on Linux/macOS.
+  install_names:
+    # Generally pre-installed on Linux/macOS
+    scoop: less # Via main bucket
+    chocolatey: less
   tags:
     - essential
     - shell
 
 tail:
   command_names: [tail]
-  comment: null
-  install_names: {}
+  comment: |-
+    Almost always pre-installed on Linux/macOS.
+  install_names:
+    # Generally pre-installed on Linux/macOS (part of coreutils)
+    # For Windows, often included with Git Bash or similar environments
+    scoop: coreutils # Via main bucket
+    chocolatey: coreutils
   tags:
     - essential
     - shell
 
 bat:
-  command_names: [batcat, bat]
+  command_names: [bat, batcat] # Ubuntu uses batcat
   comment: |-
-    Not available on ubuntu, but in pixi.
+    Not available in default Ubuntu/Debian repos, but in pixi, brew, winget etc.
+    Command may be 'batcat' on Debian/Ubuntu if installed from alternative sources.
   install_names:
     brew: bat
     pixi: bat
     winget: sharkdp.bat
+    # apt: bat # Not in standard repos, requires manual.deb or alternative repo
+    dnf: bat
+    pacman: bat
+    zypper: bat
+    macports: bat
+    scoop: bat
+    chocolatey: bat
   tags:
     - essential
     - shell
@@ -38,6 +54,13 @@ ripgrep:
     brew: ripgrep
     apt: ripgrep
     winget: BurntSushi.ripgrep
+    dnf: ripgrep
+    pacman: ripgrep
+    zypper: ripgrep
+    macports: ripgrep
+    scoop: ripgrep
+    chocolatey: ripgrep
+    pixi: ripgrep
   tags:
     - essential
     - shell
@@ -47,8 +70,15 @@ eza:
   comment: null
   install_names:
     brew: eza
-    apt: eza
+    apt: eza # Available in newer Debian/Ubuntu, might need backports/PPA otherwise
     winget: eza-community.eza
+    dnf: eza # Available in Fedora repos (may need enabling testing repos depending on version)
+    pacman: eza
+    zypper: eza
+    macports: eza # Available in MacPorts
+    scoop: eza
+    chocolatey: eza
+    pixi: eza # Available via conda-forge
   tags:
     - essential
     - shell
@@ -58,8 +88,15 @@ zoxide:
   comment: null
   install_names:
     brew: zoxide
-    apt: zoxide
+    apt: zoxide # Available in newer Debian/Ubuntu, might need backports/PPA otherwise
     winget: ajeetdsouza.zoxide
+    dnf: zoxide
+    pacman: zoxide
+    zypper: zoxide
+    macports: zoxide # Available in MacPorts
+    scoop: zoxide
+    chocolatey: zoxide
+    pixi: zoxide # Available via conda-forge
   tags:
     - essential
     - shell
@@ -69,29 +106,55 @@ hexyl:
   comment: null
   install_names:
     brew: hexyl
-    apt: hexyl
+    apt: hexyl # Available in newer Debian/Ubuntu
     winget: sharkdp.hexyl
+    dnf: hexyl
+    pacman: hexyl
+    zypper: hexyl
+    macports: hexyl # Available in MacPorts
+    scoop: hexyl
+    chocolatey: hexyl
+    pixi: hexyl # Available via conda-forge
   tags:
     - essential
     - shell
 
 pygmentize:
   command_names: [pygmentize]
-  comment: null
+  comment: |-
+    Command provided by the Pygments Python package.
+    System packages often named python(3)-pygments.
   install_names:
-    brew: pygments
-    apt: python3-pygments
-    pip: Pygments
+    brew: pygments # Installs Python package and script
+    apt: python3-pygments # Provides the command for Python 3
+    pip: Pygments # Installs Python package and script
+    dnf: python3-pygments # Provides the command for Python 3
+    pacman: python-pygments # Provides the command
+    zypper: python3-Pygments # Provides the command for Python 3 (check exact capitalization)
+    macports: py-pygments # Installs Python package and script (check prefix/version)
+    scoop: pygments # Installs via pip usually
+    chocolatey: pygments # Community package available, likely installs via pip
+    pixi: pygments # Available via conda-forge
+    # winget not directly applicable, installed via Python/pip
+  tags:
+    - essential # Often used for syntax highlighting
+    - shell
+    - library
 
 libmagic:
   command_names: []
   comment: |-
-    For macOS and Linux, brew or apt gives the latest binaries. For Windows, it may be
-    easier to use pip.
+    Library for determining file types. Runtime library needed by tools,
+    dev package needed for compiling against it.
+    For Windows, pip package 'python-magic-bin' bundles the DLL.
   install_names:
     brew: libmagic
     apt: libmagic1
-    pip: python-magic-bin
+    dnf: file-libs # Provides libmagic.so.1
+    pacman: libmagic # Provides libmagic.so.1
+    zypper: libmagic1 # Provides libmagic.so.1
+    macports: file # Provides the library
+    pip: python-magic-bin # Bundles DLL for Windows
   tags:
     - essential
     - library
@@ -99,32 +162,51 @@ libmagic:
 libgl1:
   command_names: []
   comment: |-
-    Needed on ubuntu along with ffmpeg.
+    OpenGL runtime library. Needed on Linux for graphics.
+    Package names vary (libgl1, libglvnd, mesa-libGL).
   install_names:
-    apt: libgl1
+    apt: libgl1 # Or libgl1-mesa-glx
+    dnf: libglvnd-glx # Part of the libglvnd stack
+    pacman: libglvnd # Or mesa
+    zypper: libGL1 # Provided by mesa-libGL1 usually
   tags:
     - library
-  
+
 ffmpeg:
   command_names: [ffmpeg]
   comment: |-
     Needed by yt-dlp and many other tools.
+    May require enabling third-party repos on some Linux distros (RPM Fusion for Fedora, Packman for openSUSE).
   install_names:
     brew: ffmpeg
     apt: ffmpeg
-    winget: Gyan.FFmpeg
+    winget: Gyan.FFmpeg # Common community build
+    dnf: ffmpeg # Requires enabling RPM Fusion (free) repository
+    pacman: ffmpeg
+    zypper: ffmpeg-6 # Or similar versioned package, requires enabling Packman repository
+    macports: ffmpeg
+    scoop: ffmpeg
+    chocolatey: ffmpeg
+    pixi: ffmpeg
   tags:
     - essential
     - shell
     - library
 
 imagemagick:
-  command_names: [magick]
+  command_names: [magick, convert, identify] # Provides multiple commands
   comment: null
   install_names:
     brew: imagemagick
     apt: imagemagick
     winget: ImageMagick.ImageMagick
+    dnf: ImageMagick # Provides libraries and utilities
+    pacman: imagemagick
+    zypper: ImageMagick # Provides libraries and utilities
+    macports: ImageMagick
+    scoop: imagemagick
+    chocolatey: imagemagick # Available (check specific package variant if needed)
+    pixi: imagemagick
   tags:
     - shell
     - library
@@ -132,11 +214,18 @@ imagemagick:
 dust:
   command_names: [dust]
   comment: |-
-    Not available on ubuntu, but in pixi.
+    Not available in default Ubuntu/Debian repos, but in pixi, brew, winget etc.
   install_names:
     brew: dust
     pixi: dust
     winget: bootandy.dust
+    # apt: dust # Not in standard repos
+    dnf: dust # Available in Fedora repos (may need enabling testing repos depending on version)
+    pacman: dust # Available in Arch repos (community or AUR)
+    zypper: dust # Available in openSUSE repos (check community repos)
+    macports: dust
+    scoop: dust
+    chocolatey: dust
   tags:
     - essential
     - shell
@@ -144,11 +233,18 @@ dust:
 duf:
   command_names: [duf]
   comment: |-
-    Not in winget. Only in unstable on ubuntu, but in pixi.
+    Not in winget. May be in unstable/testing on some Linux distros, but in pixi.
   install_names:
     brew: duf
     pixi: duf
     chocolatey: duf
+    # winget: # Not available as per comment
+    apt: duf # May require unstable/testing/PPA
+    dnf: duf
+    pacman: duf
+    zypper: duf # Available in openSUSE repos (check community repos)
+    macports: duf
+    scoop: duf
   tags:
     - essential
     - shell
