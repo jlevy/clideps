@@ -17,24 +17,22 @@ from clideps.pkgs.pkg_model import (
     PkgInfo,
     PkgName,
 )
+from clideps.utils.which_all import which_all
 
 log = logging.getLogger(__name__)
 
 
-def which_tool(pkg: PkgInfo) -> tuple[Path | None, CheckInfo]:
+def which_tool(pkg: PkgInfo) -> list[Path]:
     """
     Does one of the package's commands exist in the path?
     This only works for packages that have installed commands (not pure
     libraries).
     """
-    found_path = next(filter(None, (shutil.which(name) for name in pkg.command_names)), None)
-    path = Path(found_path) if found_path else None
-    return (
-        path,
-        f"Found `{path.name}` at `{fmt_path(path)}`"
-        if path
-        else f"Did not find in path: {', '.join(pkg.command_names)}",
-    )
+    # TODO: Find
+    found_paths: list[Path] = []
+    for name in pkg.command_names:
+        found_paths.extend(which_all(name))
+    return [Path(p).resolve() for p in found_paths]
 
 
 def pkg_check(
@@ -43,11 +41,11 @@ def pkg_check(
     optional: list[PkgName] | None = None,
 ) -> PkgCheckResult:
     """
-    Main function to check which dependencies are installed. Validates the given
+    Main function to check which packages are installed. Validates the given
     package names. The usual list is mandatory dependencies, but recommended
     and optional dependencies can also be listed.
 
-    If no dependencies are listed, all known dependencies will be checked as
+    If no packages are listed, all known packages will be checked as
     optional dependencies.
     """
     if not mandatory and not recommended and not optional:
@@ -74,9 +72,11 @@ def pkg_check(
 
     for dep in deps:
         # First check if the tools are in the path.
-        which_path, which_info = which_tool(dep.pkg_info)
-        if which_path:
-            success, check_info = True, which_info
+        which_paths = which_tool(dep.pkg_info)
+        if which_paths:
+            success = True
+            path_strs = [fmt_path(p) for p in which_paths]
+            check_info = f"Found `{dep.pkg_name}` at {', '.join(path_strs)}"
         else:
             # Otherwise use a checker function.
             # Ensure common checkers are imported.
