@@ -24,7 +24,7 @@ from clideps.ui.styles import STYLE_HINT
 
 APP_NAME = "clideps"
 
-APP_DESCRIPTION = """Dotenv and external tool dependencies with less pain"""
+APP_DESCRIPTION = """Terminal environment setup with less pain"""
 
 
 def get_app_version() -> str:

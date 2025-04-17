@@ -4,9 +4,10 @@ import logging
 from collections.abc import Callable
 from typing import TypeAlias
 
+from strif import AtomicVar
+
 from clideps.errors import ConfigError
 from clideps.pkgs.pkg_model import CheckInfo, PkgName
-from clideps.utils.atomic_var import AtomicVar
 
 log = logging.getLogger(__name__)
 

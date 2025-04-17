@@ -7,7 +7,7 @@ Repository = "https://github.com/jlevy/clideps"
 
 [project]
 name = "clideps"
-description = "Dotenv and external tool dependencies with less pain"
+description = "Terminal environment setup with less pain"
 authors = [
     { name="Joshua Levy", email="joshua@cal.berkeley.edu" },
 ]
@@ -47,7 +47,7 @@ dependencies = [
     "questionary>=2.1.0",
     "rich>=14.0.0",
     "rich-argparse>=1.7.0",
-    "strif>=2.1.0",
+    "strif>=3.0.0-rc.1",
 ]
 
 
