@@ -18,14 +18,15 @@ log = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class PkgManagerCheckResult:
-    """Result of checking a single package manager."""
+    """
+    Result of checking whether a single package manager is installed.
+    """
 
     pkg_manager: PkgManager
     path: Path | None = None
     version_output: str | None = None
 
     def formatted(self) -> Text:
-        """Return a formatted string for display."""
         details: list[str] = []
         if self.version_output:
             first_line = self.version_output.splitlines()[0].strip()
@@ -35,28 +36,29 @@ class PkgManagerCheckResult:
             details.append(f"at {fmt_path(self.path)}")
 
         details_str = " ".join(details)
-        message = Text.assemble(
-            (f"`{self.pkg_manager.name}`", ""), (f" ({details_str})", STYLE_HINT)
-        )
+        message = Text.assemble((f"{self.pkg_manager.name}", ""), (f" ({details_str})", STYLE_HINT))
         return format_status(True, message)
 
 
 @dataclass(frozen=True)
 class PkgManagerCheckResults:
-    """Results of checking all applicable package managers."""
+    """
+    Results of checking what package managers are installed.
+    """
 
     found: list[PkgManagerCheckResult]
     missing: list[PkgManager]
 
     def formatted(self) -> Group:
-        """Return a formatted group for display."""
         items: list[Text] = []
         if self.found:
             items.extend(fm.formatted() for fm in self.found)
         if self.missing:
-            # Use "info" status for missing managers
             items.extend(
-                format_status("info", Text(f"`{pm.name}` (Not found or check failed)"))
+                format_status(
+                    "info",
+                    Text.assemble((f"{pm.name}", ""), (" (not found)", STYLE_HINT)),
+                )
                 for pm in self.missing
             )
         return Group(*items)

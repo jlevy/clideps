@@ -15,14 +15,21 @@ def find_dotenv_paths(include_home: bool = True, *extra_dirs: Path) -> list[Path
     paths. If extra_dirs are provided, they will be checked for .env or
     .env.local files as well.
     """
-    paths = [find_dotenv(filename=path, usecwd=True) for path in DOTENV_NAMES]
+    # First check up the current directory hierarchy.
+    path_strs = [find_dotenv(filename=filename, usecwd=True) for filename in DOTENV_NAMES]
+    paths = [Path(p).expanduser().resolve() for p in path_strs if p]
+
+    # Now check home and any other extras.
+    dir_list = list(extra_dirs or [])
     if include_home:
-        paths.append("~")
-    for dir in extra_dirs:
-        for path in DOTENV_NAMES:
-            if (dir / path).expanduser().exists():
-                paths.append(str(dir / path))
-    return [Path(path).expanduser().resolve() for path in paths if path]
+        dir_list.append(Path.home())
+    for dir in dir_list:
+        for filename in DOTENV_NAMES:
+            path = (dir / filename).expanduser().resolve()
+            if path.exists() and path not in paths:
+                paths.append(path)
+
+    return paths
 
 
 def load_dotenv_paths(

@@ -44,7 +44,6 @@ def cli_warn_if_missing(pkg_names: list[str]) -> None:
 
 
 def cli_env_check(env_vars: list[str]) -> None:
-    print_heading("Environment Check Results")
     print_env_check(env_vars)
     rprint()
 
@@ -52,6 +51,7 @@ def cli_env_check(env_vars: list[str]) -> None:
 def cli_terminal_info() -> None:
     print_heading("Terminal Info")
     rprint(terminal_check().formatted())
+    rprint()
 
 
 def cli_pkg_manager_check() -> None:

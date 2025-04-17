@@ -4,12 +4,11 @@ import threading
 from logging import getLogger
 
 from rich import print as rprint
-from rich.console import Group
 from rich.text import Text
 
 from clideps.env_vars.dotenv_utils import env_var_is_set, load_dotenv_paths
 from clideps.env_vars.env_names import EnvName, get_all_common_env_names
-from clideps.ui.rich_output import format_success_or_failure
+from clideps.ui.rich_output import format_success_or_failure, print_heading
 
 log = getLogger(__name__)
 
@@ -42,35 +41,44 @@ def warn_if_missing_api_keys(env_vars: list[str]) -> list[str]:
     return missing_apis
 
 
-def format_env_check(env_vars: list[str] | None = None) -> Group:
+def format_dotenv_check() -> Text:
     """
-    Formats the status of API key setup as a Rich Group.
+    Formats the status of .env file setup.
+    """
+    dotenv_paths = load_dotenv_paths(True, True)
+
+    dotenv_status_text = format_success_or_failure(
+        value=bool(dotenv_paths),
+        true_str=", ".join(str(path) for path in dotenv_paths),
+        false_str="No .env files found. Set up your API keys in a .env file.",
+    )
+
+    return dotenv_status_text
+
+
+def format_env_var_check(env_vars: list[str] | None = None, one_line: bool = False) -> Text:
+    """
+    Formats the status of env variable setup.
     """
     if not env_vars:
         env_vars = get_all_common_env_names()
 
-    dotenv_paths = load_dotenv_paths(True, True)
-
-    dotenv_status_text = Text.assemble(
-        format_success_or_failure(
-            value=bool(dotenv_paths),
-            true_str=f"Found .env files: {', '.join(str(path) for path in dotenv_paths)}",
-            false_str="No .env files found. Set up your API keys in a .env file.",
-        ),
-    )
-
     api_key_status_texts = [
-        format_success_or_failure(is_found, key.api_provider)
+        format_success_or_failure(is_found, key.display_str(not one_line))
         for key, is_found in check_env_vars(env_vars)
     ]
 
-    api_keys_found_text = Text.assemble("API keys found: ", Text(" ").join(api_key_status_texts))
+    sep = " " if one_line else "\n"
+    api_keys_found_text = Text(sep).join(api_key_status_texts)
 
-    return Group(dotenv_status_text, api_keys_found_text)
+    return api_keys_found_text
 
 
 def print_env_check(
-    recommended_keys: list[str], env_vars: list[str] | None = None, once: bool = False
+    recommended_keys: list[str],
+    env_vars: list[str] | None = None,
+    once: bool = False,
+    one_line: bool = False,
 ) -> None:
     """
     Convenience function to print status of whether all the given API keys
@@ -81,8 +89,12 @@ def print_env_check(
     if once and _log_api_setup_done.is_set():
         return
 
-    output_group = format_env_check(env_vars)
-    rprint(output_group)
+    print_heading(".env File Check")
+    rprint(format_dotenv_check())
+    rprint()
+
+    print_heading("Environment Check Results")
+    rprint(format_env_var_check(env_vars, one_line=one_line))
 
     warn_if_missing_api_keys(recommended_keys)
 
