@@ -40,14 +40,14 @@ classifiers = [
 dependencies = [
     "cachetools>=5.5.2",
     "dotenv>=0.9.9",
-    "flowmark>=0.3.3",
-    "prettyfmt>=0.3.0",
+    "flowmark>=0.4.6",
+    "prettyfmt>=0.3.1",
     "pydantic>=2.11.3",
     "pyyaml>=6.0.2",
     "questionary>=2.1.0",
     "rich>=14.0.0",
     "rich-argparse>=1.7.0",
-    "strif>=3.0.0-rc.1",
+    "strif>=3.0.1",
 ]
 
 

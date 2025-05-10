@@ -1,8 +1,10 @@
 from rich import get_console, reconfigure
 
 # No emojis on legacy windows.
+# This resets to default rich styling, but it's only for legacy windows.
 is_legacy_windows = get_console().options.legacy_windows
-reconfigure(emoji=not is_legacy_windows)
+if is_legacy_windows:
+    reconfigure(emoji=False)
 
 
 def safe_emoji(emoji: str, fallback: str = "") -> str:

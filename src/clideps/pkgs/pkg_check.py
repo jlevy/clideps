@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+import math
 from pathlib import Path
 
+from cachetools import TTLCache, cached
 from prettyfmt import fmt_path
 
 from clideps.pkgs.pkg_checker_registry import run_checker
@@ -34,6 +36,7 @@ def which_tool(pkg: PkgInfo) -> list[Path]:
     return [Path(p).resolve() for p in found_paths]
 
 
+@cached(TTLCache(maxsize=math.inf, ttl=5.0))  # pyright: ignore
 def pkg_check(
     mandatory: list[PkgName] | None = None,
     recommended: list[PkgName] | None = None,
@@ -82,7 +85,7 @@ def pkg_check(
             import clideps.pkgs.common_pkg_checkers  # pyright: ignore  # noqa: F401
 
             success, check_info = run_checker(dep.pkg_name)
-            log.info(f"Checker result for {dep.pkg_name}: {success} {check_info}")
+            log.info(f"Checker result for {dep.pkg_name}: {success}: {check_info}")
         if success:
             found_info[dep.pkg_name] = check_info
             found_pkgs.append(dep.pkg)
