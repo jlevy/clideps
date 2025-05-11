@@ -18,9 +18,9 @@ from clideps.cli.cli_commands import (
     cli_terminal_info,
     cli_warn_if_missing,
 )
-from clideps.ui.argparse_utils import WrappedColorFormatter
 from clideps.ui.rich_output import print_error, rprint
 from clideps.ui.styles import STYLE_HINT
+from clideps.utils.readable_argparse import ReadableColorFormatter
 
 APP_NAME = "clideps"
 
@@ -36,7 +36,7 @@ def get_app_version() -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
         description=f"{APP_DESCRIPTION}",
         epilog=(__doc__ or "") + "\n\n" + f"{APP_NAME} {get_app_version()}",
     )
@@ -53,7 +53,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="""
         Show general info about given packages. Does not check if they are installed.
         """,
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
     )
     pkg_info_parser.add_argument(
         "pkg_names", type=str, nargs="*", help="package names to show info for, or all if not given"
@@ -67,7 +67,6 @@ def build_parser() -> argparse.ArgumentParser:
         either common packages known to clideps or specified in a `pkg_info` field in a
         clideps.yml file.
         """,
-        formatter_class=WrappedColorFormatter,
     )
     pkg_check_parser.add_argument("pkg_names", type=str, nargs="*", help="package names to check")
 
@@ -78,7 +77,7 @@ def build_parser() -> argparse.ArgumentParser:
         Warn if the given packages are not installed. Also give suggestions for
         how to install them.
         """,
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
     )
     warn_if_missing_parser.add_argument(
         "pkg_names", type=str, nargs="+", help="package names to warn for"
@@ -88,7 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
         "pkg_manager_check",
         help="Check which package managers are installed.",
         description="Check which package managers (brew, apt, scoop, etc.) are installed and available.",
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
     )
 
     env_check_parser = subparsers.add_parser(
@@ -97,7 +96,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="""
         Show information about .env files and environment variables.
         """,
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
     )
     env_check_parser.add_argument(
         "env_vars",
@@ -116,7 +115,7 @@ def build_parser() -> argparse.ArgumentParser:
         Show information about the terminal. Includes regular terminfo details and
         whether the terminal supports other features like hyperlinks or images.
         """,
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
     )
 
     subparsers.add_parser(
@@ -128,7 +127,7 @@ def build_parser() -> argparse.ArgumentParser:
         Run all checks to show terminal, package manager, .env, and status of common packages.
         Same as running `terminal_info`, `pkg_manager_check`, `env_check`, and `pkg_check`.
         """,
-        formatter_class=WrappedColorFormatter,
+        formatter_class=ReadableColorFormatter,
     )
 
     return parser
