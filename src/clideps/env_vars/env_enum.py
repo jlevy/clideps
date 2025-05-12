@@ -51,12 +51,12 @@ class EnvEnum(str, Enum):
     def read_str(self) -> str: ...  # Required
 
     @overload
-    def read_str(self, default: str) -> str: ...
+    def read_str(self, *, default: str) -> str: ...
 
     @overload
-    def read_str(self, default: None) -> str | None: ...  # Default is None
+    def read_str(self, *, default: None) -> str | None: ...  # Default is None
 
-    def read_str(self, default: str | None | _RequiredType = REQUIRED) -> str | None:
+    def read_str(self, *, default: str | None | _RequiredType = REQUIRED) -> str | None:
         """
         Get the string value of the environment variable.
         Raises `MissingEnvVar` (a `ValueError` subclass) if variable is not set and
@@ -76,12 +76,14 @@ class EnvEnum(str, Enum):
     def read_path(self) -> Path: ...  # Required
 
     @overload
-    def read_path(self, default: Path) -> Path: ...
+    def read_path(self, *, default: Path) -> Path: ...
 
     @overload
-    def read_path(self, default: None) -> Path | None: ...
+    def read_path(self, *, default: None) -> Path | None: ...
 
-    def read_path(self, default: Path | None | _RequiredType = REQUIRED) -> Path | None:
+    def read_path(
+        self, *, default: Path | None | _RequiredType = REQUIRED
+    ) -> Path | None:
         """
         Get the Path value of the environment variable.
         Raises `MissingEnvVar` (a `ValueError` subclass) if variable is not set and
@@ -103,9 +105,9 @@ class EnvEnum(str, Enum):
     def read_bool(self) -> bool: ...
 
     @overload
-    def read_bool(self, default: bool) -> bool: ...
+    def read_bool(self, *, default: bool) -> bool: ...
 
-    def read_bool(self, default: bool | _RequiredType = REQUIRED) -> bool:
+    def read_bool(self, *, default: bool | _RequiredType = REQUIRED) -> bool:
         """
         Get the boolean value of the environment variable.
         Raises `MissingEnvVar` (a `ValueError` subclass) if variable is not set and
