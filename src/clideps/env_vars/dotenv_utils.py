@@ -1,12 +1,16 @@
 import os
 from pathlib import Path
 from shutil import copyfile
+from typing import cast
 
 from dotenv import find_dotenv, load_dotenv
 from dotenv.main import DotEnv, rewrite, with_warn_for_invalid_lines
 from dotenv.parser import parse_stream
 
 DOTENV_NAMES = [".env", ".env.local"]
+
+# Handy to use "changeme" as a placeholder.
+IGNORED_VALS = ("changeme",)
 
 
 def find_dotenv_paths(include_home: bool = True, *extra_dirs: Path) -> list[Path]:
@@ -36,7 +40,7 @@ def load_dotenv_paths(
     override: bool = True, include_home: bool = True, *extra_dirs: Path
 ) -> list[Path]:
     """
-    Find and load .env orfiles.
+    Find and load .env files.
     """
     dotenv_paths = find_dotenv_paths(include_home, *extra_dirs)
     for dotenv_path in dotenv_paths:
@@ -44,21 +48,44 @@ def load_dotenv_paths(
     return dotenv_paths
 
 
-def read_dotenv_file(dotenv_path: str | Path) -> dict[str, str | None]:
+def read_dotenv_file(dotenv_path: str | Path) -> dict[str, str]:
     """
     Read a .env file and return a dictionary of key-value pairs.
+    Only returns set values.
     """
-    return DotEnv(dotenv_path=dotenv_path).dict()
+    values = DotEnv(dotenv_path=dotenv_path).dict()
+    return {k: cast(str, v) for k, v in values.items() if valid_env_value(v)}
 
 
-def env_var_is_set(key: str, min_length: int = 10, forbidden_str: str = "changeme") -> bool:
+def valid_env_value(
+    value: str | None, min_length: int = 1, ignored_vals: tuple[str, ...] = IGNORED_VALS
+) -> bool:
+    """
+    Convenience validation function for environment variable values.
+    """
+    return bool(
+        value
+        and len(value.strip()) >= min_length
+        and not any(ignored_val.lower() in value.lower() for ignored_val in ignored_vals)
+    )
+
+
+def env_var_is_set(
+    key: str, min_length: int = 1, forbidden_strs: tuple[str, ...] = IGNORED_VALS
+) -> bool:
     """
     Check if an environment variable is set and plausible (not a dummy or empty value).
     """
     value = os.environ.get(key, None)
-    return bool(
-        value and len(value.strip()) > min_length and forbidden_str.lower() not in value.lower()
-    )
+    return bool(valid_env_value(value, min_length, forbidden_strs))
+
+
+def check_env_vars(*env_names: str) -> dict[str, str]:
+    """
+    Check which of the given environment variables are set, ignoring empty
+    or dummy values. Returns key-value pairs with the valuesthat are set.
+    """
+    return {k: cast(str, os.environ.get(k)) for k in env_names if env_var_is_set(k)}
 
 
 def update_env_file(
@@ -68,8 +95,9 @@ def update_env_file(
     backup_suffix: str | None = ".bak",
 ) -> tuple[list[str], list[str]]:
     """
-    Updates values in a .env file (safely). Similar to what dotenv offers but allows multiple
-    updates at once and keeps a backup. Values may be quoted or unquoted.
+    Updates values in a .env file (safely). Similar to what dotenv offers but allows
+    multiple updates at once and keeps a backup. Values may be quoted or unquoted.
+    Creates parent directories if they don't exist.
     """
     if not create_if_missing and not dotenv_path.exists():
         raise FileNotFoundError(f".env file does not exist: {dotenv_path}")

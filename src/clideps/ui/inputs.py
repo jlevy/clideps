@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import questionary
 
 
@@ -17,5 +19,8 @@ def input_simple_string(
     prompt: str,
     instruction: str | None = None,
     default: str = "",
+    validate: Callable[[str], bool] | None = None,
 ) -> str:
-    return questionary.text(prompt, instruction=instruction, default=default).ask()
+    return questionary.text(
+        prompt, instruction=instruction, default=default, validate=validate
+    ).ask()

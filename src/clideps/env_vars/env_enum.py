@@ -81,9 +81,7 @@ class EnvEnum(str, Enum):
     @overload
     def read_path(self, *, default: None) -> Path | None: ...
 
-    def read_path(
-        self, *, default: Path | None | _RequiredType = REQUIRED
-    ) -> Path | None:
+    def read_path(self, *, default: Path | None | _RequiredType = REQUIRED) -> Path | None:
         """
         Get the Path value of the environment variable.
         Raises `MissingEnvVar` (a `ValueError` subclass) if variable is not set and
