@@ -5,8 +5,13 @@ from rich import get_console
 from rich_argparse.contrib import ParagraphRichHelpFormatter
 from typing_extensions import override
 
-MAX_WIDTH = 100
-MIN_WIDTH = 40
+
+def get_readable_console_width(min_width: int = 40, max_width: int = 100) -> int:
+    """
+    Get a readable console width by default between 40 and 100 characters.
+    Very wide consoles are common but not readable for long text.
+    """
+    return max(min_width, min(max_width, get_console().width))
 
 
 class ReadableColorFormatter(ParagraphRichHelpFormatter):
@@ -14,9 +19,9 @@ class ReadableColorFormatter(ParagraphRichHelpFormatter):
     A formatter for `argparse` that colorizes with `rich_argparse` and makes a
     few other small changes to improve readability.
 
-    - Wraps text to console width but with a max width of 100 characters, which
-      is better for readability in both wide and narrow consoles.
     - Preserves paragraphs, unlike the default argparse formatters.
+    - Wraps text to console width but with a max width of 88 characters, which
+      is better for readability in both wide and narrow consoles.
     - Adds a newline after each action for better readability.
     """
 
@@ -24,13 +29,13 @@ class ReadableColorFormatter(ParagraphRichHelpFormatter):
     # formatter_class=ReadableColorFormatter.
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        width = max(MIN_WIDTH, min(MAX_WIDTH, get_console().width))
+        width = get_readable_console_width()
         super().__init__(*args, width=width, **kwargs)
 
     # This is a bit of a hack but lets us control formatting.
     # Define our own _Section class that inherits from the parent's _Section.
-    # This is only   to slightly adjust the layout, in particular to add a newline
-    # after each action for better readability.
+    # This is only needed to slightly adjust the layout: in particular to add a
+    # newline after each subcommand description for better readability.
     class _Section(ParagraphRichHelpFormatter._Section):  # pyright: ignore[reportPrivateUsage]
         @override
         def _render_actions(self, console: r.Console, options: r.ConsoleOptions) -> r.RenderResult:
