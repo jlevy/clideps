@@ -27,15 +27,19 @@ Supports several major package managers on macOS, Windows, and Linux.
 
 ## Usage
 
-It is available as a pip as `clideps` so use as usual.
+It is available on PyPy `clideps` so do the usual `uv add clideps` or `pip install clideps`, etc.
 For uv users (recommended):
 
 ```
 # Run the cli
-uvx clideps
-# Add to your project and you will be able to streamline setup for your users:
-uv add clideps
+uvx clideps --help
+
+# Check current setup
+uvx clideps check
 ```
+
+<img width="994" alt="output of uvx clideps check" src="https://github.com/user-attachments/assets/a2ff1d83-3494-4820-800a-0c359c34fc92" />
+
 
 * * *
 
