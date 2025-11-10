@@ -29,6 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
     # Include this to avoid accidentally publishing to PyPI:
     # "Private :: Do Not Upload",
@@ -42,7 +43,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "flowmark>=0.4.6",
     "prettyfmt>=0.3.1",
-    "pydantic>=2.11.3",
+    "pydantic>=2.12.4",
     "pyyaml>=6.0.2",
     "questionary>=2.1.0",
     "rich>=14.0.0",
