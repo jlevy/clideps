@@ -9,6 +9,7 @@ import argparse
 import logging
 import sys
 from importlib.metadata import version
+from textwrap import dedent
 
 from clideps.cli.cli_commands import (
     cli_env_check,
@@ -24,7 +25,18 @@ from clideps.utils.readable_argparse import ReadableColorFormatter
 
 APP_NAME = "clideps"
 
-APP_DESCRIPTION = """Terminal environment setup with less pain"""
+APP_DESCRIPTION = dedent("""
+    **Terminal environment setup with less pain**
+
+    A cross-platform tool and library for checking your system setup and dependencies.
+
+    Use `clideps check` to run all checks, or use individual commands for specific checks.
+    """).strip()
+
+
+def markdown_formatter(prog: str) -> ReadableColorFormatter:
+    """Helper to create ReadableColorFormatter with markdown enabled."""
+    return ReadableColorFormatter(prog, format_markdown=True)
 
 
 def get_app_version() -> str:
@@ -36,9 +48,9 @@ def get_app_version() -> str:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        formatter_class=ReadableColorFormatter,
-        description=f"{APP_DESCRIPTION}",
-        epilog=(__doc__ or "") + "\n\n" + f"{APP_NAME} {get_app_version()}",
+        formatter_class=markdown_formatter,
+        description=APP_DESCRIPTION,
+        epilog=f"More info: https://github.com/jlevy/clideps\n\n{APP_NAME} {get_app_version()}",
     )
     parser.add_argument("--version", action="version", version=f"{APP_NAME} {get_app_version()}")
     parser.add_argument("--verbose", action="store_true", help="verbose output")
@@ -50,34 +62,41 @@ def build_parser() -> argparse.ArgumentParser:
     pkg_info_parser = subparsers.add_parser(
         "pkg_info",
         help="Show general info about given packages.",
-        description="""
-        Show general info about given packages. Does not check if they are installed.
-        """,
-        formatter_class=ReadableColorFormatter,
+        description=dedent("""
+            Show general info about given packages.
+
+            Does **not** check if they are installed.
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
     pkg_info_parser.add_argument(
-        "pkg_names", type=str, nargs="*", help="package names to show info for, or all if not given"
+        "pkg_names",
+        type=str,
+        nargs="*",
+        help="package names to show info for (all if not specified)",
     )
 
     pkg_check_parser = subparsers.add_parser(
         "pkg_check",
         help="Check if the given packages are installed.",
-        description="""
-        Check if the given packages are installed. Names provided must be known packages,
-        either common packages known to clideps or specified in a `pkg_info` field in a
-        clideps.yml file.
-        """,
+        description=dedent("""
+            Check if the given packages are installed.
+
+            Names provided must be **known packages**, either:
+            - Common packages known to clideps, or
+            - Specified in a `pkg_info` field in a `clideps.yml` file
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
     pkg_check_parser.add_argument("pkg_names", type=str, nargs="*", help="package names to check")
 
     warn_if_missing_parser = subparsers.add_parser(
         "warn_if_missing",
         help="Warn if the given packages are not installed.",
-        description="""
-        Warn if the given packages are not installed. Also give suggestions for
-        how to install them.
-        """,
-        formatter_class=ReadableColorFormatter,
+        description=dedent("""
+            Warn if the given packages are **not installed** and provide installation suggestions.
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
     warn_if_missing_parser.add_argument(
         "pkg_names", type=str, nargs="+", help="package names to warn for"
@@ -86,48 +105,55 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser(
         "pkg_manager_check",
         help="Check which package managers are installed.",
-        description="Check which package managers (brew, apt, scoop, etc.) are installed and available.",
-        formatter_class=ReadableColorFormatter,
+        description=dedent("""
+            Check which package managers (`brew`, `apt`, `scoop`, etc.) are installed and available.
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
 
     env_check_parser = subparsers.add_parser(
         "env_check",
         help="Show information about .env files and environment variables.",
-        description="""
-        Show information about .env files and environment variables.
-        """,
-        formatter_class=ReadableColorFormatter,
+        description=dedent("""
+            Show information about `.env` files and environment variables.
+
+            Checks both:
+            - Environment variables currently set
+            - Variables defined in `.env` files
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
     env_check_parser.add_argument(
         "env_vars",
         type=str,
         nargs="*",
-        help="""
-        environment variables to show info for (if none, use some common API keys
-        like OPENAI_API_KEY, AZURE_API_KEY, etc.)
-        """,
+        help="environment variables to check (common API keys if not specified)",
     )
 
     subparsers.add_parser(
         "terminal_info",
         help="Show information about the terminal.",
-        description="""
-        Show information about the terminal. Includes regular terminfo details and
-        whether the terminal supports other features like hyperlinks or images.
-        """,
-        formatter_class=ReadableColorFormatter,
+        description=dedent("""
+            Show information about the terminal, including:
+            - Regular terminfo details
+            - Support for features like **hyperlinks** or **images**
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
 
     subparsers.add_parser(
         "check",
-        help="""
-        Run all checks to show terminal, package manager, .env, and status of common packages.
-        """,
-        description="""
-        Run all checks to show terminal, package manager, .env, and status of common packages.
-        Same as running `terminal_info`, `pkg_manager_check`, `env_check`, and `pkg_check`.
-        """,
-        formatter_class=ReadableColorFormatter,
+        help="Run all checks to show terminal, package manager, .env, and status of common packages.",
+        description=dedent("""
+            Run all checks to show:
+            - Terminal info
+            - Package manager status
+            - Environment variables
+            - Common package status
+
+            Same as running `terminal_info`, `pkg_manager_check`, `env_check`, and `pkg_check` sequentially.
+            """).strip(),
+        formatter_class=markdown_formatter,
     )
 
     return parser

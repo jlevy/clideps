@@ -63,7 +63,7 @@ dev = [
 requires-dist = [
     { name = "cachetools", specifier = ">=5.5.2" },
     { name = "dotenv", specifier = ">=0.9.9" },
-    { name = "flowmark", specifier = ">=0.4.6" },
+    { name = "flowmark", specifier = ">=0.5.7" },
     { name = "prettyfmt", specifier = ">=0.3.1" },
     { name = "pydantic", specifier = ">=2.12.4" },
     { name = "pyyaml", specifier = ">=6.0.2" },
