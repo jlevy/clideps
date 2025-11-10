@@ -43,10 +43,9 @@ def input_simple_string(
         instruction: Optional help text for the user
         default: Default value if user just presses enter
         validate: Function to validate input. Should return:
-            - True: input is valid
+            - True or None: input is valid
             - False: input is invalid (uses default error message)
             - str: input is invalid with custom error message
-            - None: input is valid (treated same as True)
         multiline: Allow multi-line input
         required: Whether input is required (if False, empty input is allowed)
     """
